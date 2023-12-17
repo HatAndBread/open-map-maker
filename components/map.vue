@@ -10,12 +10,12 @@
   import MapControls from "@/components/map-controls.vue"
 
   const theMap = ref<Map | undefined>()
-  const route = new Route()
+  const osrm = new OSRM()
+  const route = new Route(osrm)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
   const theLine = ref<Polyline | undefined>()
   const currentTool = ref("route")
-  const osrm = ref(new OSRM())
 
   const setTool = (t: string) => currentTool.value = t
 
@@ -27,27 +27,7 @@
   }
 
   const locationClickFuncs = {
-    route: async (e: LeafletMouseEvent) => {
-      const newPoint = [e.latlng.lng, e.latlng.lat];
-      route.addControlPoint(newPoint)
-      const l = route.controlPointCoordinates.length
-      if (l > 1) {
-        const lastPoint = route.controlPoints.geometry.coordinates[l - 2]
-        const result = await osrm.value.routeBetweenPoints([lastPoint, newPoint])
-        if (result) {
-          //const els = await elevation.fetch(result)
-          //for (let i = 0; i < els.length; i++) {
-          //  result[i][2] = els[i].elevation
-          //}
-
-          route.addCoordinates(result)
-
-          route.drawRoute()
-        }
-      } else {
-        route.addControlPointMarkers()
-      }
-    },
+    route: (e: LeafletMouseEvent) => route.handleClick(e),
     controlPoint: (e: LeafletMouseEvent) => {},
     streetView: (e: LeafletMouseEvent) => {
       googleMaps.goto(e)
