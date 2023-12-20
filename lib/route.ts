@@ -12,13 +12,11 @@ export default class Route {
   line?: L.Polyline
   controlPointLayer: L.LayerGroup
   undoManager: UndoManager
-  controlPointCoordinateIndexes: number[][]
   constructor(osrm: OSRM) {
     this.osrm = osrm
     this.geoJSON = starterObject()
     this.undoManager = new UndoManager()
     this.controlPointLayer = new L.LayerGroup()
-    this.controlPointCoordinateIndexes = []
   }
 
   get route() {
@@ -57,20 +55,12 @@ export default class Route {
 
   addCoordinates(positions: Position[]) {
     const undo = () => {
-      if (this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2]?.length === 2) {
-        this.controlPointCoordinateIndexes.pop()
-      } else if (this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2]?.length === 3) {
-        this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2].pop()
-      }
       for (let i = 0; i < positions.length; i++) {
         this.routeCoordinates.pop()
       }
       this.controlPointCoordinates.pop()
     }
     const redo = () => {
-      this.controlPointCoordinateIndexes.push([this.routeCoordinates.length - 1, positions.length + this.routeCoordinates.length - 1])
-      const prior = this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2]
-      if (prior) prior.push(positions.length + this.routeCoordinates.length - 1)
       for (let i = 0; i < positions.length; i++) {
         this.routeCoordinates.push(positions[i])
       }
@@ -126,11 +116,13 @@ export default class Route {
     if (this.lastCoord) {
       const result = await this.osrm.routeBetweenPoints([this.lastCoord, newPoint])
       if (result) {
+        if (this.routeCoordinates.length > 1) result.shift() // We already have the first point
         //const els = await elevation.fetch(result)
         //for (let i = 0; i < els.length; i++) {
         //  result[i][2] = els[i].elevation
         //}
       this.addCoordinates(result)
+      console.log(this.routeCoordinates)
       }
     } else {
       this.addCoordinates([newPoint])

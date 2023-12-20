@@ -27,7 +27,6 @@ export default class OSRM {
     try {
       const result = await this.fetch(`${baseUrl}/${this.currentProfile}/${this.pointsString(points)}${this.options}`)
       const lineString = result.routes[0].geometry as LineString
-      lineString.coordinates.shift() // We already have the first coordinate
       return lineString.coordinates;
     } catch(e) {
       console.error(e)

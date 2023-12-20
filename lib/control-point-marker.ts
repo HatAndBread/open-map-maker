@@ -1,8 +1,7 @@
 import Route from "./route"
 import L from "leaflet"
 import throttle from "lodash.throttle"
-import min from "lodash.min"
-import max from "lodash.max"
+import type { Position } from "geojson"
 import nearestPoint from "@turf/nearest-point"
 import {featureCollection, point as turfPoint} from "@turf/helpers"
 
@@ -18,7 +17,6 @@ export default class ControlPointMarker {
     this.route = route
     this.coord = route.controlPointCoordinates[index]
     this.index = index
-    this.lastPreview = undefined
     this.dragIsFinished = false
     this.leafletMarker = new L.Marker(this.originalLatLng, {
       icon: L.icon(this.#controlPointIcon),
@@ -29,69 +27,70 @@ export default class ControlPointMarker {
 
   addEventListeners() {
     const handleDrag = throttle(async (e) => {
-      if (this.dragIsFinished && this.lastPreview) {
-        this.lastPreview.remove()
-        this.dragIsFinished = false
-        return
-      }
+      if (this.routeCoordinates.length === 1) return;
       const {coordinates} = await this.fetchCoords(e.latlng)
-      if (this.dragIsFinished && this.lastPreview) {
-        this.lastPreview.remove()
-        this.dragIsFinished = false
-        return
-      }
       if (coordinates && this.map) {
-        if (this.lastPreview) this.lastPreview.remove()
-        this.lastPreview = L.polyline(coordinatesToLatLngs(coordinates), { color: "rgba(100,0,200,0.3)" })
-        this.lastPreview.addTo(this.map)
+        if (this.lastPreview) {
+          this.lastPreview.remove()
+          const preview = L.polyline(coordinatesToLatLngs(coordinates), { color: "rgba(100,0,200,0.3)" })
+          this.lastPreview = preview;
+          this.lastPreview.addTo(this.map)
+        } else {
+          this.lastPreview = L.polyline(coordinatesToLatLngs(coordinates), { color: "rgba(100,0,200,0.3)" })
+          this.lastPreview.addTo(this.map)
+        }
       }
     }, 500)
     
     this.leafletMarker.on("drag", handleDrag)
     
     this.leafletMarker.on("dragend", async (e) => {
-      this.dragIsFinished = true
-      const {coordinates, newCoords} = await this.fetchCoords(e.target.getLatLng())
+      const droppedLatLng = e.target.getLatLng()
+      if (this.routeCoordinates.length === 1) {
+        this.controlPointCoordinates[0] = [droppedLatLng.lng, droppedLatLng.lat] 
+        this.route.drawRoute()
+        return;
+      }
+      const {coordinates, previous, next, currentCoords} = await this.fetchCoords(droppedLatLng);
+
+      let x = true;
+      [200, 500, 1000, 1500].forEach((n) => {
+        setTimeout(() => {
+          if (this.lastPreview && x) {
+            x = false
+            this.lastPreview.remove()
+          }
+        }, n)
+      })
       if (this.lastPreview) this.lastPreview.remove()
       if (!coordinates) return
 
-      const point = this.controlPointCoordinateIndexes[this.index]
-      console.log(`POINT: ${point}`)
-
-      const newControlPointCoords = nearestPoint(newCoords, featureCollection(coordinates.map((c) => turfPoint(c)))).geometry.coordinates
-      this.controlPointCoordinates[this.index] = newControlPointCoords
-      const newControlPointIndex = coordinates.findIndex((c) => c[0] === newControlPointCoords[0] && c[1] === newControlPointCoords[1])
-      const newDifference = newControlPointIndex + this.currentIndex[0] - this.currentIndex[1]
-      console.log(`New Difference: ${newDifference}`)
-      this.updateControlPointCoordinateIndexes(newDifference)
-
-      const numberOfPlacesToRemove = !point[2] ? point[1] : point[2] - point[0]
-      const placeToStartRemoving = point[0] + 1
-      console.log(JSON.stringify(this.routeCoordinates))
-      console.log(`Removal Start Point: ${placeToStartRemoving}, Number of Places to Remove: ${numberOfPlacesToRemove}, New Coordinates: ${coordinates}`)
-      this.routeCoordinates.splice(placeToStartRemoving, numberOfPlacesToRemove, ...coordinates)
-      console.log(JSON.stringify(this.routeCoordinates))
-      this.route.drawRoute()
-    })
-  }
-
-  indexAt(index: number) {
-    return this.controlPointCoordinateIndexes[index]
-  }
-
-  get currentIndex() {return this.controlPointCoordinateIndexes[this.index]}
-
-  updateControlPointCoordinateIndexes(newDifference: number) {
-    this.indexAt(this.index)[1] += newDifference
-    if (this.indexAt(this.index)[2]) this.indexAt(this.index)[2] += newDifference
-    if (this.indexAt(this.index - 1)) {
-      this.indexAt(this.index - 1)[2] = this.indexAt(this.index - 1)[2] += newDifference
-    }
-    for (let i = this.index + 1; i < this.controlPointCoordinateIndexes.length; i++) {
-      for (let j = 0; j < this.indexAt(i).length; j++) {
-        if (this.indexAt(i)[j]) this.indexAt(i)[j] += newDifference
+      let start: number
+      let end: number
+      if (next && previous) {
+        const segmentToCut = [previous, next].map((x) => {
+          return this.routeCoordinates
+            .map((y, i) => y[0] === x[0] && y[1] === x[1] ? i : null)
+            .filter((x) => typeof x === "number")
+        }) as number[][]
+        start = segmentToCut[0][0] || 1
+        end = segmentToCut[1].find((s) => s > segmentToCut[0][0]) as number
+      } else if (previous) {
+        start = this.routeCoordinates.findIndex((x) => x[0] === previous[0] && x[1] === previous[1])
+        end = Infinity
+      } else if (next) {
+        this.routeCoordinates.shift()
+        start = 0
+        end = this.routeCoordinates.findIndex((x) => x[0] === next[0] && x[1] === next[1])
+      } else {
+        return
       }
-    }
+      if (typeof start === "number" && typeof end === "number") {
+        this.routeCoordinates.splice(start, end - start, ...coordinates)
+        this.controlPointCoordinates[this.index] = currentCoords
+        this.route.drawRoute()
+      }
+    })
   }
 
   async fetchCoords(latlng: L.LatLng) {
@@ -99,8 +98,9 @@ export default class ControlPointMarker {
     const next = this.controlPointCoordinates[this.index + 1]
     const newCoords = [latlng.lng, latlng.lat]
     const points = [previous, newCoords, next].filter(Boolean)
-    const coordinates = await this.route.osrm.routeBetweenPoints(points)
-    return {coordinates, previous, next, newCoords}
+    const coordinates = await this.route.osrm.routeBetweenPoints(points) as Position[]
+    const currentCoords = nearestPoint(newCoords, featureCollection(coordinates.map((c) => turfPoint(c)))).geometry.coordinates
+    return {coordinates, previous, next, currentCoords}
   }
 
   get #controlPointIcon() {
@@ -114,7 +114,6 @@ export default class ControlPointMarker {
   get map() { return this.route.map }
   get routeCoordinates() { return this.route.routeCoordinates }
   get controlPointCoordinates() { return this.route.controlPointCoordinates }
-  get controlPointCoordinateIndexes() { return this.route.controlPointCoordinateIndexes }
 }
 
 function coordinatesToLatLngs(coordinates: number[][]) {
