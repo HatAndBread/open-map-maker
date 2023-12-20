@@ -9,22 +9,28 @@ export default class OSRM {
     this.currentProfile = "mapbox/walking"
   }
 
+  get options() {
+    return `?overview=full&geometries=geojson&access_token=${config.public.mapboxKey}`
+  }
+
+  pointsString(points: number[][]) {
+    return points.map((p) => `${p[0]},${p[1]}`).join(";")
+  }
+  
   async fetch(url: string) {
       const result = await window.fetch(url)
       const data = await result.json()
       return data;
   }
 
-  async routeBetweenPoints(points: [number[], number[]]) {
-    const lngLat = `${points[0][0]},${points[0][1]};${points[1][0]},${points[1][1]}?overview=full&geometries=geojson&access_token=${config.public.mapboxKey}`
-    const url = `${baseUrl}/${this.currentProfile}/${lngLat}`
+  async routeBetweenPoints(points: number[][]) {
     try {
-      const result = await this.fetch(url)
-      console.log(result)
+      const result = await this.fetch(`${baseUrl}/${this.currentProfile}/${this.pointsString(points)}${this.options}`)
       const lineString = result.routes[0].geometry as LineString
+      lineString.coordinates.shift() // We already have the first coordinate
       return lineString.coordinates;
     } catch(e) {
-      console.log(e)
+      console.error(e)
     }
   }
 }

@@ -13,6 +13,10 @@
     "@nuxt/devtools": "latest",
     "@types/geojson": "^7946.0.13",
     "@types/leaflet": "^1.9.8",
+    "@types/lodash.debounce": "^4.0.9",
+    "@types/lodash.max": "^4.0.9",
+    "@types/lodash.min": "^4.0.9",
+    "@types/lodash.throttle": "^4.1.9",
     "autoprefixer": "^10.4.16",
     "daisyui": "^4.4.18",
     "nuxt": "^3.8.2",
@@ -22,8 +26,14 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@turf/helpers": "^6.5.0",
+    "@turf/nearest-point": "^6.5.0",
     "eslint": "^8.55.0",
     "leaflet": "^1.9.4",
+    "lodash.debounce": "^4.0.8",
+    "lodash.max": "^4.0.1",
+    "lodash.min": "^4.0.1",
+    "lodash.throttle": "^4.1.1",
     "material-icons": "^1.13.12",
     "undo-manager": "^1.1.1"
   }

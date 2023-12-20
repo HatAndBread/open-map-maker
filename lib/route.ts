@@ -2,6 +2,7 @@ import L from "leaflet"
 import type { FeatureCollection, Geometry, Feature, Position, LineString, GeometryObject, GeometryCollection } from "geojson"
 import UndoManager from "undo-manager"
 import OSRM from "./osrm"
+import ControlPointMarker from "./control-point-marker"
 type GeometryTypes = "Point" | "MultiPoint" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "GeometryCollection"
 
 export default class Route {
@@ -11,11 +12,13 @@ export default class Route {
   line?: L.Polyline
   controlPointLayer: L.LayerGroup
   undoManager: UndoManager
+  controlPointCoordinateIndexes: number[][]
   constructor(osrm: OSRM) {
     this.osrm = osrm
     this.geoJSON = starterObject()
     this.undoManager = new UndoManager()
     this.controlPointLayer = new L.LayerGroup()
+    this.controlPointCoordinateIndexes = []
   }
 
   get route() {
@@ -39,7 +42,7 @@ export default class Route {
   }
 
   get latLngs() {
-    return this.routeCoordinates.map((p) => [p[1], p[0]]) as L.LatLngExpression[]
+    return this.coordinatesToLatLngs(this.routeCoordinates)
   }
 
   undo() {
@@ -54,12 +57,20 @@ export default class Route {
 
   addCoordinates(positions: Position[]) {
     const undo = () => {
+      if (this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2]?.length === 2) {
+        this.controlPointCoordinateIndexes.pop()
+      } else if (this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2]?.length === 3) {
+        this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2].pop()
+      }
       for (let i = 0; i < positions.length; i++) {
         this.routeCoordinates.pop()
       }
       this.controlPointCoordinates.pop()
     }
     const redo = () => {
+      this.controlPointCoordinateIndexes.push([this.routeCoordinates.length - 1, positions.length + this.routeCoordinates.length - 1])
+      const prior = this.controlPointCoordinateIndexes[this.controlPointCoordinateIndexes.length - 2]
+      if (prior) prior.push(positions.length + this.routeCoordinates.length - 1)
       for (let i = 0; i < positions.length; i++) {
         this.routeCoordinates.push(positions[i])
       }
@@ -83,7 +94,6 @@ export default class Route {
         iconAnchor: [16, 18]
       }),
     });
-    console.log(marker)
     return marker
   }
 
@@ -93,51 +103,13 @@ export default class Route {
     this.controlPointLayer = new L.LayerGroup(this.controlPointMakers())
     this.controlPointLayer.addTo(this.map)
   }
-
   
-  controlPointMarker(coord: number[], index: number) {
-    const controlPointIcon: L.IconOptions = {
-      iconUrl: "controlpoint.png",
-      iconSize: [32,32]
-    };
-    const originalLatLng: L.LatLngExpression = [coord[1], coord[0]]
-    const marker =  new L.Marker(originalLatLng, {
-      icon: L.icon(controlPointIcon),
-      draggable: true,
-    });
-    marker.on("dragend", (e) => {
-      const previous = this.controlPointCoordinates[index - 1]
-      const next = this.controlPointCoordinates[index + 1]
-      const newLatLng = e.target.getLatLng()
-      if (previous && next) {
-        console.log(previous, next, newLatLng)
-      } else if (previous) {
-        console.log(previous, newLatLng)
-      } else if (next) {
-        console.log(next, newLatLng)
-      }
-    })
-
-    return marker
-  }
-
   controlPointMakers() {
     const markers = [this.startMarker()]
     for (let i = 0; i < this.controlPointCoordinates.length; i++) {
-      markers.push(this.controlPointMarker(this.controlPointCoordinates[i], i));
+      markers.push(new ControlPointMarker(this, i).leafletMarker);
     }
     return markers
-  }
-
-  nextPointIndex(point: number[]) {
-    this.routeCoordinates.findIndex((_, i) => {
-      const last = this.routeCoordinates[i - 1]
-      if (last?.[0] == point?.[0] && last?.[1] == point?.[1]) return i
-    })
-  }
-
-  previousPoint(point: Point) {
-
   }
 
   drawRoute() {
@@ -165,6 +137,10 @@ export default class Route {
   }
     this.drawRoute();
   }
+  
+  coordinatesToLatLngs(coordinates: number[][]) {
+    return coordinates.map((p) => [p[1], p[0]]) as L.LatLngExpression[]
+  }
 }
 
 function starterObject () {
@@ -188,4 +164,3 @@ function addFeature (geoJSON: FeatureCollection, type: GeometryTypes, properties
   };
   geoJSON.features.push(obj)
 }
-

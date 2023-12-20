@@ -13,8 +13,7 @@ export default class GeoLocation {
   constructor(map: L.Map) {
     this.map = map;
     this.id = `${Math.floor(Math.random() * 100000)}`
-    console.log(this.#iconHTML(0))
-    this._icon = L.divIcon({ className: "", html: this.#iconHTML(0) });
+    this._icon = L.divIcon({ className: "", html: this.#iconHTML });
     this.icon = L.marker([0, 0], {
       icon: this._icon,
       interactive: false,
@@ -38,6 +37,8 @@ export default class GeoLocation {
   setIconRotation(rotation: number | null) {
     if (!rotation && (typeof rotation !== "number" || isNaN(rotation))) return
     this.iconElement.style.rotate = `${rotation - 90}deg`
+    this.iconElement.style.fontSize = "32px"
+    this.iconElement.style.color = "purple"
   }
 
   watchLocation() {
@@ -49,6 +50,8 @@ export default class GeoLocation {
           this.map.setView(latLng, 16);
           this.map.addLayer(this.icon);
         }
+        console.log("HI")
+        console.log(coords)
         localStorage.setItem("lastKnownLatLng", JSON.stringify(latLng));
         this.icon.setLatLng(latLng);
         this.setIconRotation(coords.heading)
@@ -58,14 +61,10 @@ export default class GeoLocation {
       { enableHightAccuracy: true };
   }
 
-  #iconHTML(degree: number) {
+  get #iconHTML() {
     return html`
       <span class="relative flex w-[22px] h-[22px]" id="${this.id}">
         <span
-          class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-primary"
-        ></span>
-        <span
-          class="relative inline-flex w-[22px] h-[22px] rounded-full text-3xl justify-center items-center text-neutral"
           >➣
         </span>
       </span>
