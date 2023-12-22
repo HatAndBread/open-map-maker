@@ -10,7 +10,7 @@
     <a class="text-xl btn btn-ghost" href="/">
       <span> Open Map Maker </span>
       <div class="w-8 h-8">
-        <img src="@/public/logo.svg"/>
+        <img src="/logo.svg"/>
       </div>
     </a>
   </div>
