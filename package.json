@@ -26,8 +26,10 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "@turf/nearest-point": "^6.5.0",
+    "@turf/nearest-point-on-line": "^6.5.0",
     "eslint": "^8.55.0",
     "leaflet": "^1.9.4",
     "lodash.debounce": "^4.0.8",

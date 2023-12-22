@@ -7,8 +7,12 @@
 <template>
   <div class="navbar bg-base-100">
     <div class="flex-1">
-    <a class="text-xl btn btn-ghost" href="/">Open Map Maker</a>
-
+    <a class="text-xl btn btn-ghost" href="/">
+      <span> Open Map Maker </span>
+      <div class="w-8 h-8">
+        <img src="@/public/logo.svg"/>
+      </div>
+    </a>
   </div>
 
   <div class="flex-none">

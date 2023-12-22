@@ -9,7 +9,6 @@ export default class ControlPointMarker {
   route: Route
   coord: number[]
   index: number
-  lastPreview: L.Polyline | undefined
   dragIsFinished: boolean
   leafletMarker: L.Marker
 
@@ -29,16 +28,8 @@ export default class ControlPointMarker {
     const handleDrag = throttle(async (e) => {
       if (this.routeCoordinates.length === 1) return;
       const {coordinates} = await this.fetchCoords(e.latlng)
-      if (coordinates && this.map) {
-        if (this.lastPreview) {
-          this.lastPreview.remove()
-          const preview = L.polyline(coordinatesToLatLngs(coordinates), { color: "rgba(100,0,200,0.3)" })
-          this.lastPreview = preview;
-          this.lastPreview.addTo(this.map)
-        } else {
-          this.lastPreview = L.polyline(coordinatesToLatLngs(coordinates), { color: "rgba(100,0,200,0.3)" })
-          this.lastPreview.addTo(this.map)
-        }
+      if (coordinates && this.map && this.preview) {
+        this.preview.setLatLngs(coordinatesToLatLngs(coordinates));
       }
     }, 500)
     
@@ -53,44 +44,52 @@ export default class ControlPointMarker {
       }
       const {coordinates, previous, next, currentCoords} = await this.fetchCoords(droppedLatLng);
 
-      let x = true;
-      [200, 500, 1000, 1500].forEach((n) => {
-        setTimeout(() => {
-          if (this.lastPreview && x) {
-            x = false
-            this.lastPreview.remove()
-          }
-        }, n)
-      })
-      if (this.lastPreview) this.lastPreview.remove()
-      if (!coordinates) return
+      this.resetPreview()
+      setTimeout(() => this.resetPreview(), 500)
+      if (!coordinates || (!next && !previous)) return
 
-      let start: number
-      let end: number
-      if (next && previous) {
-        const segmentToCut = [previous, next].map((x) => {
-          return this.routeCoordinates
-            .map((y, i) => y[0] === x[0] && y[1] === x[1] ? i : null)
-            .filter((x) => typeof x === "number")
-        }) as number[][]
-        start = segmentToCut[0][0] || 1
-        end = segmentToCut[1].find((s) => s > segmentToCut[0][0]) as number
-      } else if (previous) {
-        start = this.routeCoordinates.findIndex((x) => x[0] === previous[0] && x[1] === previous[1])
-        end = Infinity
-      } else if (next) {
-        this.routeCoordinates.shift()
-        start = 0
-        end = this.routeCoordinates.findIndex((x) => x[0] === next[0] && x[1] === next[1])
-      } else {
-        return
+      const[start, end] = this.coordinatesToCut(previous, next)
+      let sectionToBeRemoved: Position[]
+      const originalControlPointCoords = {...this.controlPointCoordinates[this.index]}
+      const undo = () => {
+        this.routeCoordinates.splice(start, coordinates.length, ...sectionToBeRemoved)
+        this.controlPointCoordinates[this.index] = originalControlPointCoords
       }
-      if (typeof start === "number" && typeof end === "number") {
-        this.routeCoordinates.splice(start, end - start, ...coordinates)
+      const redo = () => {
+        sectionToBeRemoved = this.routeCoordinates.splice(start, end - start, ...coordinates)
         this.controlPointCoordinates[this.index] = currentCoords
-        this.route.drawRoute()
       }
+      this.undoManager.add({undo, redo})
+      redo()
+
+      this.route.drawRoute()
     })
+  }
+
+  coordinatesToCut(previous: Position, next: Position): [number, number] {
+    if (next && previous) return this.middleCut(next, previous)
+    if (previous) return this.endCut(previous)
+    return this.beginningCut(next)
+  }
+
+  beginningCut(next: Position): [number, number] {
+    this.routeCoordinates.shift()
+    return [0, this.routeCoordinates.findIndex((x) => x[0] === next[0] && x[1] === next[1])]
+  }
+
+  endCut(previous: Position): [number, number] {
+    return [this.routeCoordinates.findIndex((x) => x[0] === previous[0] && x[1] === previous[1]), Infinity]
+  }
+
+  middleCut(next: Position, previous: Position): [number, number] {
+    const segmentToCut = [previous, next].map((x) => {
+      return this.routeCoordinates
+        .map((y, i) => y[0] === x[0] && y[1] === x[1] ? i : null)
+        .filter((x) => typeof x === "number")
+    }) as number[][]
+    const start = segmentToCut[0][0] || 1
+    const end = segmentToCut[1].find((s) => s > segmentToCut[0][0]) as number
+    return [start, end]
   }
 
   async fetchCoords(latlng: L.LatLng) {
@@ -101,6 +100,10 @@ export default class ControlPointMarker {
     const coordinates = await this.route.osrm.routeBetweenPoints(points) as Position[]
     const currentCoords = nearestPoint(newCoords, featureCollection(coordinates.map((c) => turfPoint(c)))).geometry.coordinates
     return {coordinates, previous, next, currentCoords}
+  }
+
+  resetPreview() {
+    if (this.preview) this.preview.setLatLngs([])
   }
 
   get #controlPointIcon() {
@@ -114,6 +117,8 @@ export default class ControlPointMarker {
   get map() { return this.route.map }
   get routeCoordinates() { return this.route.routeCoordinates }
   get controlPointCoordinates() { return this.route.controlPointCoordinates }
+  get preview() { return this.route.preview }
+  get undoManager() { return this.route.undoManager }
 }
 
 function coordinatesToLatLngs(coordinates: number[][]) {

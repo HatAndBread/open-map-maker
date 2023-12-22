@@ -28,10 +28,9 @@
 
   const locationClickFuncs = {
     route: (e: LeafletMouseEvent) => route.handleClick(e),
-    controlPoint: (e: LeafletMouseEvent) => {},
-    streetView: (e: LeafletMouseEvent) => {
-      googleMaps.goto(e)
-    },
+    straightLine: (e: LeafletMouseEvent) => route.handleStraightLine(e),
+    controlPoint: (e: LeafletMouseEvent) => route.handleControlPoint(e),
+    streetView: (e: LeafletMouseEvent) => googleMaps.goto(e),
     weather: (e: LeafletMouseEvent) => {}
   }
 
@@ -49,6 +48,7 @@
     const map = L.map(theMapContainer.value).setView(GeoLocation.lastKnownLatLng || [51.505, -0.09], 16);
     route.map = map
     theMap.value = map;
+    route.addPreview()
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

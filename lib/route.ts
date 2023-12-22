@@ -3,8 +3,14 @@ import type { FeatureCollection, Geometry, Feature, Position, LineString, Geomet
 import UndoManager from "undo-manager"
 import OSRM from "./osrm"
 import ControlPointMarker from "./control-point-marker"
+import nearestPoint from "@turf/nearest-point"
+import nearestPointOnLine from "@turf/nearest-point-on-line"
+import distance from "@turf/distance"
+import {featureCollection, point as turfPoint, lineString } from "@turf/helpers"
+
 type GeometryTypes = "Point" | "MultiPoint" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "GeometryCollection"
 
+const previewOptions = { color: "rgba(200,100,100,0.4)" }
 export default class Route {
   geoJSON: FeatureCollection
   osrm: OSRM
@@ -12,6 +18,8 @@ export default class Route {
   line?: L.Polyline
   controlPointLayer: L.LayerGroup
   undoManager: UndoManager
+  preview?: L.Polyline
+
   constructor(osrm: OSRM) {
     this.osrm = osrm
     this.geoJSON = starterObject()
@@ -74,6 +82,17 @@ export default class Route {
     this.controlPoints.geometry.coordinates.push(position)
   }
 
+  addControlPointAt(index: number, position: Position) {
+    const undo = () => {
+      this.controlPointCoordinates.splice(index, 1)
+    }
+    const redo = () => {
+      this.controlPointCoordinates.splice(index, 0, position)
+    }
+    this.undoManager.add({undo, redo})
+    redo()
+  }
+
   startMarker() {
     const start = this.controlPointCoordinates[0]
     const marker = new L.Marker([start[1], start[0]], {
@@ -122,16 +141,56 @@ export default class Route {
         //  result[i][2] = els[i].elevation
         //}
       this.addCoordinates(result)
-      console.log(this.routeCoordinates)
       }
     } else {
-      this.addCoordinates([newPoint])
-  }
+      this.addCoordinates([newPoint]);
+    }
     this.drawRoute();
+  }
+
+  handleStraightLine(e: L.LeafletMouseEvent) {
+    this.addCoordinates([[e.latlng.lng, e.latlng.lat]]);
+    this.drawRoute()
+  }
+
+  handleControlPoint(e: L.LeafletMouseEvent) {
+    const newPoint = [e.latlng.lng, e.latlng.lat];
+    const nearestPointInRoute = nearestPointOnLine(lineString(this.routeCoordinates), newPoint)
+    const index = nearestPoint(newPoint, featureCollection(this.controlPointCoordinates.map((c) => turfPoint(c)))).properties.featureIndex
+    const thisControlPoint = this.controlPointCoordinates[index]
+    let indexToInsert = index
+    if (!this.controlPointCoordinates[index - 1]) {
+      indexToInsert = 1
+    } else if (!this.controlPointCoordinates[index + 1]) {
+      indexToInsert = this.controlPointCoordinates.length - 1
+    } else {
+      const x = nearestPointInRoute.properties.index || 0
+      const before = this.routeCoordinates.slice(0, x + 1)
+      for (let i = 0; i < before.length; i++) {
+        if (before[i][0] === thisControlPoint[0] && before[i][1] === thisControlPoint[1]) {
+          indexToInsert = index + 1
+          break;
+        }
+      }
+    }
+    this.addControlPointAt(indexToInsert, nearestPointInRoute.geometry.coordinates)
+    this.drawRoute()
   }
   
   coordinatesToLatLngs(coordinates: number[][]) {
     return coordinates.map((p) => [p[1], p[0]]) as L.LatLngExpression[]
+  }
+
+  routeDistance() {
+    return this.routeCoordinates
+      .map((c, i) => this.routeCoordinates[i + 1] ? distance(this.routeCoordinates[i], this.routeCoordinates[i + 1]) : 0)
+      .reduce((prev, curr) => prev + curr, 0)
+  }
+
+  addPreview() {
+    if (!this.map) return;
+    this.preview = L.polyline([], previewOptions)
+    this.preview.addTo(this.map)
   }
 }
 

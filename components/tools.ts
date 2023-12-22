@@ -16,7 +16,7 @@ const tools = {
   straightLine: {
     icon: "polyline",
     tip: "Draw Straight Lines",
-    cursor: cursor("straightline"),
+    cursor: cursor("straightline", { x: 8, y: 16 }),
   },
   streetView: {
     icon: "streetview",

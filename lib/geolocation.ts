@@ -50,15 +50,13 @@ export default class GeoLocation {
           this.map.setView(latLng, 16);
           this.map.addLayer(this.icon);
         }
-        console.log("HI")
-        console.log(coords)
         localStorage.setItem("lastKnownLatLng", JSON.stringify(latLng));
         this.icon.setLatLng(latLng);
         this.setIconRotation(coords.heading)
       },
       (error) => {}
     ),
-      { enableHightAccuracy: true };
+      { enableHighAccuracy : true };
   }
 
   get #iconHTML() {
