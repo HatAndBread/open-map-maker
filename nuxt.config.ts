@@ -3,9 +3,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
+      title: "Open Map Maker",
       link: [
         { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
-        { title: "Open Map Maker" },
       ],
     },
   },
