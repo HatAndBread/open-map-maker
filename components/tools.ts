@@ -23,11 +23,6 @@ const tools = {
     tip: "View Location in Google Street View",
     cursor: cursor("streetView"),
   },
-  weather: {
-    icon: "cloud",
-    tip: "Get Weather Forecast for Location",
-    cursor: cursor("weather"),
-  },
   undo: {
     icon: "undo",
     tip: "Undo",
@@ -38,6 +33,11 @@ const tools = {
     tip: "Redo",
     cursor: { cursor: "grab" },
   },
+  myLocation: {
+    icon: "my_location",
+    tip: "My Location",
+    cursor: { cursor: "grab" },
+  },
   open: {
     icon: "file_open",
     tip: "Open A File",
@@ -46,6 +46,11 @@ const tools = {
   save: {
     icon: "save",
     tip: "Save File",
+    cursor: { cursor: "grab" },
+  },
+  delete: {
+    icon: "delete",
+    tip: "Delete This Route",
     cursor: { cursor: "grab" },
   },
 };

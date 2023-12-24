@@ -1,8 +1,10 @@
+import Route from "./route"
 import L from "leaflet"
 
 const html = (strings: TemplateStringsArray, ...values: any) => String.raw({ raw: strings }, ...values);
 
 export default class GeoLocation {
+  route: Route
   map: L.Map;
   _icon: L.DivIcon;
   icon: L.Marker;
@@ -10,14 +12,15 @@ export default class GeoLocation {
   iconElement: HTMLSpanElement
   #started = false;
 
-  constructor(map: L.Map) {
-    this.map = map;
+  constructor(route: Route) {
+    this.route = route
+    this.map = route.map as L.Map;
     this.id = `${Math.floor(Math.random() * 100000)}`
     this._icon = L.divIcon({ className: "", html: this.#iconHTML });
     this.icon = L.marker([0, 0], {
       icon: this._icon,
       interactive: false,
-    }).addTo(map);
+    }).addTo(this.map);
     this.iconElement = document.getElementById(this.id) as HTMLSpanElement;
     this.setIconRotation(0)
   }

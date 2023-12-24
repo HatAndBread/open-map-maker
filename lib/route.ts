@@ -3,6 +3,8 @@ import type { FeatureCollection, Geometry, Feature, Position, LineString, Geomet
 import UndoManager from "undo-manager"
 import OSRM from "./osrm"
 import ControlPointMarker from "./control-point-marker"
+import toGeoJSON from "./to-geojson"
+import GeoJsonToGpx from "@dwayneparton/geojson-to-gpx"
 import nearestPoint from "@turf/nearest-point"
 import nearestPointOnLine from "@turf/nearest-point-on-line"
 import distance from "@turf/distance"
@@ -22,7 +24,8 @@ export default class Route {
 
   constructor(osrm: OSRM) {
     this.osrm = osrm
-    this.geoJSON = starterObject()
+    const latestRoute = window.localStorage ? localStorage.getItem("latest-route") : null
+    this.geoJSON = latestRoute ? JSON.parse(latestRoute) : starterObject()
     this.undoManager = new UndoManager()
     this.controlPointLayer = new L.LayerGroup()
   }
@@ -33,6 +36,12 @@ export default class Route {
 
   get routeCoordinates() {
     return this.route.geometry.coordinates
+  }
+
+  get startLatLng(): L.LatLngExpression | null {
+    if (!this.routeCoordinates[0]) return null
+      console.log(this.routeCoordinates[0])
+    return {lat: this.routeCoordinates[0][1], lng: this.routeCoordinates[0][0]}
   }
 
   get lastCoord() {
@@ -106,6 +115,8 @@ export default class Route {
     return marker
   }
 
+  get canBeDrawn() { return !!this.controlPointCoordinates[0] }
+
   addControlPointMarkers() {
     if (!this.map) return
     if (this.controlPointLayer) this.map.removeLayer(this.controlPointLayer)
@@ -122,12 +133,18 @@ export default class Route {
   }
 
   drawRoute() {
-    if (this.map) {
+    if (this.map && this.canBeDrawn) {
       if (this.line) this.map.removeLayer(this.line);
       this.addControlPointMarkers();
       this.line = L.polyline(this.latLngs, { color: "rgba(250,0,0,0.5)" });
       this.line.addTo(this.map);
+      this.saveToLS()
     }
+  }
+
+  saveToLS() {
+    if (!window.localStorage) return;
+    localStorage.setItem("latest-route", JSON.stringify(this.geoJSON))
   }
 
   async handleClick(e: L.LeafletMouseEvent) {
@@ -192,6 +209,39 @@ export default class Route {
     this.preview = L.polyline([], previewOptions)
     this.preview.addTo(this.map)
   }
+
+  clear() {
+    const copy = {...this.geoJSON}
+    const undo = () => {
+      this.geoJSON = copy
+    }
+    const redo = () => {
+      localStorage.removeItem("latest-route")
+      this.geoJSON = starterObject()
+      if (this.map && this.line) {
+        this.map.removeLayer(this.line)
+        this.map.removeLayer(this.controlPointLayer)
+      }
+    }
+    this.undoManager.add({undo, redo})
+    redo()
+  }
+
+  toGPX() {
+    const options = {
+      metadata: {
+        name: "Open Map Maker Route",
+        author: {
+          name: "Open Map Maker",
+          link: {
+            href: "https://www.openmapmaker.com",
+          },
+        },
+      },
+    };
+    const gpx = GeoJsonToGpx(this.geoJSON, options);
+    return new XMLSerializer().serializeToString(gpx);
+  }
 }
 
 function starterObject () {
@@ -200,7 +250,7 @@ function starterObject () {
     features: []
   }
   addFeature(obj, "LineString", {name: "route"})
-  addFeature(obj, "LineString", {name: "controlPoints"})
+  addFeature(obj, "MultiPoint", {name: "controlPoints"})
   return obj;
 }
 

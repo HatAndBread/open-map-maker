@@ -26,6 +26,7 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@dwayneparton/geojson-to-gpx": "^0.1.0",
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "@turf/nearest-point": "^6.5.0",

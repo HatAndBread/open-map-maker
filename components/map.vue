@@ -4,10 +4,14 @@
   import Route from "@/lib/route";
   import GeoLocation from "@/lib/geolocation"
   import googleMaps from "@/lib/google-maps"
+  import downloadFile from "@/lib/download-file"
   import elevation from "~/lib/elevation";
   import L, {type LeafletMouseEvent, Map, Polyline} from "leaflet";
   import 'leaflet/dist/leaflet.css';
   import MapControls from "@/components/map-controls.vue"
+  import DeleteModal from "@/components/delete-modal.vue"
+  import SaveModal from "@/components/save-modal.vue"
+  import UploadModal from "@/components/upload-modal.vue"
 
   const theMap = ref<Map | undefined>()
   const osrm = new OSRM()
@@ -22,8 +26,10 @@
   const nonLocationClickFuncs = {
     undo: () => route.undo(),
     redo: () => route.redo(),
-    open: () => {},
-    save: () => {}
+    myLocation: () => geo.watchLocation(),
+    save: () => window.save_modal.showModal(),
+    open: () => window.upload_modal.showModal(),
+    delete: () => window.delete_modal.showModal()
   }
 
   const locationClickFuncs = {
@@ -31,7 +37,6 @@
     straightLine: (e: LeafletMouseEvent) => route.handleStraightLine(e),
     controlPoint: (e: LeafletMouseEvent) => route.handleControlPoint(e),
     streetView: (e: LeafletMouseEvent) => googleMaps.goto(e),
-    weather: (e: LeafletMouseEvent) => {}
   }
 
   watch(currentTool, (newTool, oldTool) => {
@@ -45,10 +50,11 @@
   onMounted(() => {
     if (!theMapContainer.value) return;
 
-    const map = L.map(theMapContainer.value).setView(GeoLocation.lastKnownLatLng || [51.505, -0.09], 16);
+    const map = L.map(theMapContainer.value).setView(route.startLatLng || GeoLocation.lastKnownLatLng || [51.505, -0.09], 16);
     route.map = map
-    theMap.value = map;
+    theMap.value = map
     route.addPreview()
+    route.drawRoute()
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -58,8 +64,7 @@
         locationClickFuncs[<"route">currentTool.value](e)
       }
     })
-    geo = new GeoLocation(map)
-    geo.watchLocation()
+    geo = new GeoLocation(route)
   })
 </script>
 
@@ -67,6 +72,9 @@
   <div class="flex">
     <MapControls :setTool="setTool" :tools="tools"/>
     <div ref="theMapContainer" class="h-[90vh] w-full z-0" :style="tools[<'route'>currentTool].cursor"></div>
+    <DeleteModal :route="route"/>
+    <SaveModal :route="route"/>
+    <UploadModal :route="route"/>
   </div>
 </template>
 

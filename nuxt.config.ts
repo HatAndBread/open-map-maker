@@ -4,11 +4,12 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }
-      ]
-    }
+        { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
+        { title: "Open Map Maker" },
+      ],
+    },
   },
-  css: ['~/assets/css/main.css'],
+  css: ["~/assets/css/main.css"],
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -17,10 +18,10 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      mapboxKey: process.env.MAPBOX_KEY
-    }
-  }
-})
+      mapboxKey: process.env.MAPBOX_KEY,
+    },
+  },
+});
 
 // export default {
   // publicRuntimeConfig: {
