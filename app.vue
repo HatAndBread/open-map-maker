@@ -4,7 +4,7 @@
 </script>
 
 <template>
-  <div id="app-root" tabindex="0">
+  <div id="app-root">
     <NavBar />
     <NuxtPage />
   </div>

@@ -6,6 +6,9 @@ const config = {
   app: {
     head: {
       title: "Open Map Maker",
+      bodyAttrs: {
+        tabIndex: "0"
+      },
       link: [
         { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
       ],
