@@ -13,6 +13,7 @@ const config = {
     },
   },
   css: ["~/assets/css/main.css"],
+  buildModules: ["nuxt-vite"],
   modules: ["@vite-pwa/nuxt"],
   pwa: {
     registerType: "autoUpdate",
