@@ -1,5 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-export default defineNuxtConfig({
+import type { NuxtConfig } from "nuxt/schema";
+
+const config = {
   devtools: { enabled: true },
   app: {
     head: {
@@ -21,14 +23,6 @@ export default defineNuxtConfig({
       mapboxKey: process.env.MAPBOX_KEY,
     },
   },
-});
-
-// export default {
-  // publicRuntimeConfig: {
-    // myPublicVariable: process.env.PUBLIC_VARIABLE,
-  // },
-  // privateRuntimeConfig: {
-    // myPrivateToken: process.env.PRIVATE_TOKEN
-  // }
-// }
+}
+export default defineNuxtConfig(config);
 

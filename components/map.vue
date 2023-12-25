@@ -61,6 +61,7 @@
     }).addTo(map);
     map.on("click", (e) => {
       if (Object.keys(locationClickFuncs).includes(currentTool.value)) {
+        if (currentTool.value !== "streetView") map.setView(e.latlng.wrap())
         locationClickFuncs[<"route">currentTool.value](e)
       }
     })

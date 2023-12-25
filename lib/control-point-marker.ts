@@ -27,7 +27,7 @@ export default class ControlPointMarker {
   addEventListeners() {
     const handleDrag = throttle(async (e) => {
       if (this.routeCoordinates.length === 1) return;
-      const {coordinates} = await this.fetchCoords(e.latlng)
+      const {coordinates} = await this.fetchCoords(e.latlng.wrap())
       if (coordinates && this.map && this.preview) {
         this.preview.setLatLngs(coordinatesToLatLngs(coordinates));
       }
@@ -36,7 +36,7 @@ export default class ControlPointMarker {
     this.leafletMarker.on("drag", handleDrag)
     
     this.leafletMarker.on("dragend", async (e) => {
-      const droppedLatLng = e.target.getLatLng()
+      const droppedLatLng = e.target.getLatLng().wrap()
       if (this.routeCoordinates.length === 1) {
         this.controlPointCoordinates[0] = [droppedLatLng.lng, droppedLatLng.lat] 
         this.route.drawRoute()

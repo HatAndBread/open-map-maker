@@ -148,7 +148,9 @@ export default class Route {
   }
 
   async handleClick(e: L.LeafletMouseEvent) {
-    const newPoint = [e.latlng.lng, e.latlng.lat];
+    const {lng, lat} = e.latlng.wrap()
+    const newPoint = [lng, lat];
+    console.log(newPoint)
     if (this.lastCoord) {
       const result = await this.osrm.routeBetweenPoints([this.lastCoord, newPoint])
       if (result) {
@@ -166,12 +168,14 @@ export default class Route {
   }
 
   handleStraightLine(e: L.LeafletMouseEvent) {
-    this.addCoordinates([[e.latlng.lng, e.latlng.lat]]);
+    const {lng, lat} = e.latlng.wrap()
+    this.addCoordinates([[lng, lat]]);
     this.drawRoute()
   }
 
   handleControlPoint(e: L.LeafletMouseEvent) {
-    const newPoint = [e.latlng.lng, e.latlng.lat];
+    const {lng, lat} = e.latlng.wrap()
+    const newPoint = [lng, lat];
     const nearestPointInRoute = nearestPointOnLine(lineString(this.routeCoordinates), newPoint)
     const index = nearestPoint(newPoint, featureCollection(this.controlPointCoordinates.map((c) => turfPoint(c)))).properties.featureIndex
     const thisControlPoint = this.controlPointCoordinates[index]
