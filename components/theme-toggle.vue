@@ -13,12 +13,19 @@
       isDark.value = "1"
     }
   }
+
+  const handleClick = (e: Event) => {
+    e.preventDefault()
+    e.stopPropagation()
+    inputRef.value?.click()
+    console.log("hi")
+  }
 </script>
 
 <template>
-  <a class="w-full" @click.stop="inputRef?.click()">
+  <a class="w-full" @click.stop="handleClick">
     <label class="justify-start swap swap-rotate">
-      <input type="checkbox" class="theme-controller" value="myDark" :checked="isDark" @change="handleChange" ref="inputRef"/>
+      <input type="checkbox" class="theme-controller" value="myDark" :checked="isDark" @change="handleChange" ref="inputRef" @click.stop="()=>{}"/>
       <span class="justify-start material-icons-outlined swap-off" :style="fontSize">dark_mode</span>
       <span class="justify-start material-icons-outlined swap-on" :style="fontSize">light_mode</span>
     </label>
