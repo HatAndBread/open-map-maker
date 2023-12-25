@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <div class="navbar bg-base-100">
+  <div class="navbar bg-base-100" tabindex="0">
     <div class="flex-1">
     <a class="text-xl btn btn-ghost" href="/">
       <span> Open Map Maker </span>

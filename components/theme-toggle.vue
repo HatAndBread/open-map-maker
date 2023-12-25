@@ -18,7 +18,6 @@
     e.preventDefault()
     e.stopPropagation()
     inputRef.value?.click()
-    console.log("hi")
   }
 </script>
 
