@@ -7,7 +7,7 @@ const config = {
     head: {
       title: "Open Map Maker",
       bodyAttrs: {
-        tabIndex: "0"
+        tabIndex: "-1"
       },
       link: [
         { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
