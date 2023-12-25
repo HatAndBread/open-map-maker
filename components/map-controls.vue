@@ -11,7 +11,7 @@
     <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
     <div class="flex flex-col items-center justify-center drawer-content">
       <label for="my-drawer-2" class="relative h-full p-0 rounded-none btn drawer-button md:hidden">
-        <div class="relative w-full p-0 tooltip tooltip-right" data-tip="Show Toolbar">
+        <div class="relative w-full p-0 tooltip tooltip-right">
           <span class="material-icons-outlined">
             keyboard_double_arrow_right
         </span>
