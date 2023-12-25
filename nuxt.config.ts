@@ -11,6 +11,7 @@ const config = {
       ],
     },
   },
+  buildModules: ["@nuxtjs/pwa"],
   css: ["~/assets/css/main.css"],
   postcss: {
     plugins: {
