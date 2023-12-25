@@ -7,17 +7,18 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "generate-pwa-assets": "pwa-assets-generator"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
-    "@nuxtjs/pwa": "^3.3.5",
     "@types/geojson": "^7946.0.13",
     "@types/leaflet": "^1.9.8",
     "@types/lodash.debounce": "^4.0.9",
     "@types/lodash.max": "^4.0.9",
     "@types/lodash.min": "^4.0.9",
     "@types/lodash.throttle": "^4.1.9",
+    "@vite-pwa/assets-generator": "^0.2.1",
     "autoprefixer": "^10.4.16",
     "daisyui": "^4.4.18",
     "nuxt": "^3.8.2",
@@ -32,6 +33,7 @@
     "@turf/helpers": "^6.5.0",
     "@turf/nearest-point": "^6.5.0",
     "@turf/nearest-point-on-line": "^6.5.0",
+    "@vite-pwa/nuxt": "^0.3.6",
     "eslint": "^8.55.0",
     "leaflet": "^1.9.4",
     "lodash.debounce": "^4.0.8",
@@ -39,6 +41,7 @@
     "lodash.min": "^4.0.1",
     "lodash.throttle": "^4.1.1",
     "material-icons": "^1.13.12",
+    "sharp": "^0.33.1",
     "undo-manager": "^1.1.1"
   }
 }
