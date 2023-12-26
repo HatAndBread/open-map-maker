@@ -16,7 +16,7 @@ const config = {
       },
       link: [
         { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
-        // { rel: "manifest", href: "manifest.json" },
+        { rel: "manifest", href: "manifest.webmanifest" },
         { rel: "apple-touch-icon", href: "apple-touch-icon-180x180.png" },
       ],
     },
