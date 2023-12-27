@@ -38,6 +38,11 @@ const tools = {
     tip: "My Location",
     cursor: { cursor: "grab" },
   },
+  layers: {
+    icon: "layers",
+    tip: "Set The Map Style",
+    cursor: { cursor: "grab" },
+  },
   open: {
     icon: "file_open",
     tip: "Open A File",

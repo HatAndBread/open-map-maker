@@ -13,6 +13,9 @@ declare interface Window {
   save_modal: any;
   upload_modal: any;
   error_modal: any;
+  layers_modal: any;
 }
+
+type Server = "osm" | "cyclosm" | "satellite"
 
 declare module 'togpx';

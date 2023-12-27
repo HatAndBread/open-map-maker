@@ -6,7 +6,7 @@
   import googleMaps from "@/lib/google-maps"
   import downloadFile from "@/lib/download-file"
   import elevation from "@/lib/elevation";
-  import tileServers from "@/lib/tile-servers"
+  import Tiles from "@/lib/tiles"
   import L, {type LeafletMouseEvent, Map, Polyline} from "leaflet";
   import 'leaflet/dist/leaflet.css';
   import MapControls from "@/components/map-controls.vue"
@@ -14,9 +14,11 @@
   import SaveModal from "@/components/save-modal.vue"
   import UploadModal from "@/components/upload-modal.vue"
   import ErrorModal from "@/components/error-modal.vue"
+  import LayersModal from "@/components/layers-modal.vue"
 
   const theMap = ref<Map | undefined>()
   const error = ref<string | undefined>()
+  const tiles = new Tiles()
   const osrm = new OSRM()
   const route = new Route(osrm)
   let geo: GeoLocation
@@ -33,6 +35,7 @@
     myLocation: () => geo.watchLocation(),
     save: () => window.save_modal.showModal(),
     open: () => window.upload_modal.showModal(),
+    layers: () => window.layers_modal.showModal(),
     delete: () => window.delete_modal.showModal()
   }
 
@@ -64,9 +67,7 @@
     route.addPreview()
     route.drawRoute()
 
-    L.tileLayer(tileServers.cyclosm, {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    tiles.updateMapTiles(tiles.currentServer).addTo(map)
     map.on("click", (e) => {
       if (Object.keys(locationClickFuncs).includes(currentTool.value)) {
         if (currentTool.value !== "streetView") map.setView(e.latlng.wrap())
@@ -84,6 +85,7 @@
     <DeleteModal :route="route"/>
     <SaveModal :route="route"/>
     <UploadModal :route="route" :setError="setError"/>
+    <LayersModal :tiles="tiles"/>
     <ErrorModal :error="error"/>
   </div>
 </template>
