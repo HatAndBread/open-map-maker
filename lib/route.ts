@@ -246,6 +246,11 @@ export default class Route {
     const gpx = GeoJsonToGpx(this.geoJSON, options);
     return new XMLSerializer().serializeToString(gpx);
   }
+
+  goToStart() {
+    if (!this.map || !this.startLatLng) return
+    this.map?.setView(this.startLatLng, 16)
+  }
 }
 
 function starterObject () {

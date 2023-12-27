@@ -5,15 +5,18 @@
   import GeoLocation from "@/lib/geolocation"
   import googleMaps from "@/lib/google-maps"
   import downloadFile from "@/lib/download-file"
-  import elevation from "~/lib/elevation";
+  import elevation from "@/lib/elevation";
+  import tileServers from "@/lib/tile-servers"
   import L, {type LeafletMouseEvent, Map, Polyline} from "leaflet";
   import 'leaflet/dist/leaflet.css';
   import MapControls from "@/components/map-controls.vue"
   import DeleteModal from "@/components/delete-modal.vue"
   import SaveModal from "@/components/save-modal.vue"
   import UploadModal from "@/components/upload-modal.vue"
+  import ErrorModal from "@/components/error-modal.vue"
 
   const theMap = ref<Map | undefined>()
+  const error = ref<string | undefined>()
   const osrm = new OSRM()
   const route = new Route(osrm)
   let geo: GeoLocation
@@ -22,6 +25,7 @@
   const currentTool = ref("route")
 
   const setTool = (t: string) => currentTool.value = t
+  const setError = (t: string) => error.value = t
 
   const nonLocationClickFuncs = {
     undo: () => route.undo(),
@@ -47,6 +51,10 @@
     }
   })
 
+  watch(error, () => {
+    window.error_modal.showModal()
+  })
+
   onMounted(() => {
     if (!theMapContainer.value) return;
 
@@ -56,7 +64,7 @@
     route.addPreview()
     route.drawRoute()
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer(tileServers.cyclosm, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
     map.on("click", (e) => {
@@ -72,10 +80,11 @@
 <template>
   <div class="flex">
     <MapControls :setTool="setTool" :tools="tools"/>
-    <div ref="theMapContainer" class="h-[90vh] w-full z-0" :style="tools[<'route'>currentTool].cursor"></div>
+    <div ref="theMapContainer" class="h-[100vh] w-full z-0" :style="tools[<'route'>currentTool].cursor"></div>
     <DeleteModal :route="route"/>
     <SaveModal :route="route"/>
-    <UploadModal :route="route"/>
+    <UploadModal :route="route" :setError="setError"/>
+    <ErrorModal :error="error"/>
   </div>
 </template>
 

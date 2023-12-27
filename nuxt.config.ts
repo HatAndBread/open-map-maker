@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import type { NuxtConfig } from "nuxt/schema";
 
-
 const config = {
   modules: ["@vite-pwa/nuxt"],
   buildModules: [
@@ -24,11 +23,11 @@ const config = {
   css: ["~/assets/css/main.css"],
   pwa: {
     registerType: 'autoUpdate',
-    devOptions: {
-      enabled: true,
-      navigateFallbackAllowlist: [/^\/$/],
-      type: 'module',
-    },
+    // devOptions: {
+      // enabled: true,
+      // navigateFallbackAllowlist: [/^\/$/],
+      // type: 'module',
+    // },
     client: {
       installPrompt: true,
       // you don't need to include this: only for testing purposes

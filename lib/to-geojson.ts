@@ -3,9 +3,21 @@ import type { FeatureCollection, Geometry, Feature, Position, LineString, Geomet
 
 export default function (gpx: XMLDocument) {
   const g = toGeoJSON.gpx(gpx) as FeatureCollection
-  //@ts-ignore
-  const controlPointCoordinates = g.features.filter((f) => f?.geometry?.type === "Point").map((p) => p.geometry.coordinates)
-  const lineString = g.features.filter((f) => f?.geometry?.type === "LineString")?.[0]
+  const controlPointCoordinates = g.features
+    .filter((f) => f?.geometry?.type === "Point")
+    .map((p) => {
+      if (p.geometry.type === "Point") {
+        const gc = p.geometry
+        return gc.coordinates 
+      } else {
+        throw new Error("??????")
+      }
+    })
+  const lineString = g.features.filter((f) => f?.geometry?.type === "LineString")?.[0] as Feature<LineString>
+  if (!controlPointCoordinates.length) {
+    controlPointCoordinates[0] = lineString.geometry.coordinates[0]
+    controlPointCoordinates[1] = lineString.geometry.coordinates[lineString.geometry.coordinates.length - 1]
+  }
   g.features = []
   const controlPoints: Feature = {
     type: "Feature",
@@ -15,8 +27,10 @@ export default function (gpx: XMLDocument) {
       coordinates: controlPointCoordinates,
     },
   };
+
   g.features[0] = lineString
   g.features[1] = controlPoints
+  if (!g.features[0]) throw new Error("No LineString found")
   return g;
 }
 
