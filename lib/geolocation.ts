@@ -65,6 +65,11 @@ export default class GeoLocation {
           const unit = x === 1 ? "km" : "meters"
           this.route.reactiveStats.value.deviation = `${round(nearestPointOnLine * x, unit === "km" ? 2 : 0)} ${unit}`
           this.route.reactiveStats.value.speed = `${round(coords.speed || 0 / 1000, 1)} kph`
+          if (this.route.runningGeoJSON.features[0].geometry.type === "LineString") {
+            if (coords.altitude) lngLat.push(coords.altitude)
+            this.route.runningGeoJSON.features[0].geometry.coordinates.push(lngLat)
+            this.route.drawRunningLine()
+          }
         }
         localStorage.setItem("lastKnownLatLng", JSON.stringify(latLng));
         this.icon.setLatLng(latLng);

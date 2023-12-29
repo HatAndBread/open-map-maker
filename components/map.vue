@@ -40,10 +40,13 @@ const osrm = new OSRM()
       const reply = confirm("Are you sure you want to start editing this route?")
       if (!reply) return
       reactiveStats.value.running = false
+      route.resetRunningGeoJSON()
+      route.drawRunningLine()
       route.toggleControlPoints()
     },
     run: () => { 
       if (route.canBeDrawn) {
+        route.resetRunningGeoJSON()
         reactiveStats.value.running = true
         route.toggleControlPoints()
         geo.watchLocation()

@@ -23,9 +23,11 @@ const topoOptions = {
 const previewOptions = { color: "rgba(200,100,100,0.4)" }
 export default class Route {
   geoJSON: FeatureCollection
+  runningGeoJSON: FeatureCollection
   osrm: OSRM
   map?: L.Map
   line?: L.Polyline
+  runningLine?: L.Polyline
   controlPointLayer: L.LayerGroup
   undoManager: UndoManager
   preview?: L.Polyline
@@ -37,6 +39,7 @@ export default class Route {
     this.reactiveStats = reactiveStats
     const latestRoute = window.localStorage ? localStorage.getItem("latest-route") : null
     this.geoJSON = latestRoute ? JSON.parse(latestRoute) : starterObject()
+    this.runningGeoJSON = starterObject()
     this.undoManager = new UndoManager()
     this.controlPointLayer = new L.LayerGroup()
   }
@@ -69,6 +72,11 @@ export default class Route {
 
   get latLngs() {
     return this.coordinatesToLatLngs(this.routeCoordinates)
+  }
+
+  get runningLatLngs() {
+    //@ts-ignore
+    return this.coordinatesToLatLngs(this.runningGeoJSON.features[0].geometry.coordinates)
   }
 
   undo() {
@@ -146,6 +154,7 @@ export default class Route {
   drawRoute() {
     if (this.map && this.canBeDrawn) {
       if (this.line) this.map.removeLayer(this.line);
+      this.line?.remove()
       this.addControlPointMarkers();
       this.line = L.polyline(this.latLngs, { color: "rgba(250,0,0,0.5)" });
       this.line.addTo(this.map);
@@ -153,6 +162,14 @@ export default class Route {
     }
     this.updateChart()
     this.reactiveStats.value.totalDistance = `${round(this.routeDistance(), 2)} km`
+  }
+
+  drawRunningLine() {
+    if (!this.map) return
+    if (this.runningLine) this.map.removeLayer(this.runningLine);
+    this.runningLine?.remove()
+    this.runningLine = L.polyline(this.runningLatLngs, { color: "rgba(0,50,230,0.5)" });
+    this.runningLine.addTo(this.map);
   }
 
   updateChart() {
@@ -294,6 +311,10 @@ export default class Route {
   goToStart() {
     if (!this.map || !this.startLatLng) return
     this.map?.setView(this.startLatLng, 16)
+  }
+
+  resetRunningGeoJSON() {
+    this.runningGeoJSON = starterObject()
   }
 
   async injectElevations(arr: Position[]) {
