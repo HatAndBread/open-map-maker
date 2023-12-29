@@ -150,11 +150,11 @@ export default class Route {
       this.line = L.polyline(this.latLngs, { color: "rgba(250,0,0,0.5)" });
       this.line.addTo(this.map);
       this.saveToLS()
-      this.updateChart()
-      this.setReactiveStats({
-        totalDistance: `${round(this.routeDistance(), 2)} km`
-      })
     }
+    this.updateChart()
+    this.setReactiveStats({
+      totalDistance: `${round(this.routeDistance(), 2)} km`
+    })
   }
 
   updateChart() {
@@ -260,6 +260,7 @@ export default class Route {
     }
     this.undoManager.add({undo, redo})
     redo()
+    this.drawRoute()
   }
 
   toGPX() {

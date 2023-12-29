@@ -8,8 +8,13 @@
   const canvasRef: Ref<undefined | HTMLCanvasElement> = ref()
   onMounted(() => {
     if (!canvasRef.value) return
-    Chart.defaults.backgroundColor = "#22c55e"
+    const ctx = canvasRef.value.getContext("2d");
+    const gradient = ctx?.createLinearGradient(0, 0, 0, 100);
     Chart.defaults.color = "#aaa"
+    Chart.defaults.backgroundColor = gradient || "#22c55e"
+    gradient?.addColorStop(0.1, "#f43f5e");
+    gradient?.addColorStop(0.7, "#22c55e");
+    gradient?.addColorStop(1, "#22d3ee");
     props.route.chart = new Chart(canvasRef.value, {
       type: 'line',
       data: {
