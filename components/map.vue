@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import "regenerator-runtime/runtime";
   import {tools} from "./tools"
   import OSRM from "@/lib/osrm"
   import Route from "@/lib/route";
@@ -15,12 +16,15 @@
   import UploadModal from "@/components/upload-modal.vue"
   import ErrorModal from "@/components/error-modal.vue"
   import LayersModal from "@/components/layers-modal.vue"
+  import ElevationDisplay from "@/components/elevation-display.vue";
 
+  const reactiveStats = ref<ReactiveStats>({totalDistance: "0 km"})
+  const setReactiveStats = (s: ReactiveStats) => reactiveStats.value = s
   const theMap = ref<Map | undefined>()
   const error = ref<string | undefined>()
   const tiles = new Tiles()
   const osrm = new OSRM()
-  const route = new Route(osrm)
+  const route = new Route(osrm, setReactiveStats)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
   const theLine = ref<Polyline | undefined>()
@@ -81,7 +85,11 @@
 <template>
   <div class="flex">
     <MapControls :setTool="setTool" :tools="tools"/>
-    <div ref="theMapContainer" class="h-[100vh] w-full z-0" :style="tools[<'route'>currentTool].cursor"></div>
+    <div class="relative z-0 flex flex-col w-full">
+      <div ref="theMapContainer" class="h-[calc(100vh_-_80px)] w-full" :style="tools[<'route'>currentTool].cursor"></div>
+      <LazyElevationDisplay :route="route"/>
+      <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white p-2 rounded-md">{{reactiveStats.totalDistance}}</div>
+    </div>
     <DeleteModal :route="route"/>
     <SaveModal :route="route"/>
     <UploadModal :route="route" :setError="setError"/>

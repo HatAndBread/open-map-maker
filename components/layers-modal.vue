@@ -17,7 +17,7 @@
         <form @change="formChange">
           <div class="form-control" v-for="(server, i) in tiles.servers">
             <label class="cursor-pointer label">
-              <span class="label-text capitalize">{{server}}</span> 
+              <span class="capitalize label-text">{{server}}</span> 
               <input type="radio" name="radio-10" :class="color[i]" :checked="tiles.currentServer === server" :value="server"/>
             </label>
           </div>

@@ -98,6 +98,7 @@ export default class ControlPointMarker {
     const newCoords = [latlng.lng, latlng.lat]
     const points = [previous, newCoords, next].filter(Boolean)
     const coordinates = await this.route.osrm.routeBetweenPoints(points) as Position[]
+    this.route.injectElevations(coordinates)
     const currentCoords = nearestPoint(newCoords, featureCollection(coordinates.map((c) => turfPoint(c)))).geometry.coordinates
     return {coordinates, previous, next, currentCoords}
   }

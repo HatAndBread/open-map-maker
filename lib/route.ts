@@ -1,16 +1,24 @@
 import L from "leaflet"
 import type { FeatureCollection, Geometry, Feature, Position, LineString, GeometryObject, GeometryCollection } from "geojson"
+import Topography, { getTopography, configure, TopoLayer } from 'leaflet-topography';
 import UndoManager from "undo-manager"
 import OSRM from "./osrm"
 import ControlPointMarker from "./control-point-marker"
 import toGeoJSON from "./to-geojson"
+import type {Ref} from "vue"
+import { Chart } from "chart.js";
 import GeoJsonToGpx from "@dwayneparton/geojson-to-gpx"
 import nearestPoint from "@turf/nearest-point"
 import nearestPointOnLine from "@turf/nearest-point-on-line"
+import round from "lodash.round"
 import distance from "@turf/distance"
 import {featureCollection, point as turfPoint, lineString } from "@turf/helpers"
+import { useRuntimeConfig } from "nuxt/app"
 
 type GeometryTypes = "Point" | "MultiPoint" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "GeometryCollection"
+const topoOptions = {
+  token: useRuntimeConfig().public.mapboxKey
+}
 
 const previewOptions = { color: "rgba(200,100,100,0.4)" }
 export default class Route {
@@ -21,9 +29,12 @@ export default class Route {
   controlPointLayer: L.LayerGroup
   undoManager: UndoManager
   preview?: L.Polyline
+  chart?: Chart
+  setReactiveStats: (r: ReactiveStats) => void
 
-  constructor(osrm: OSRM) {
+  constructor(osrm: OSRM, setReactiveStats: (r: ReactiveStats) => void) {
     this.osrm = osrm
+    this.setReactiveStats = setReactiveStats
     const latestRoute = window.localStorage ? localStorage.getItem("latest-route") : null
     this.geoJSON = latestRoute ? JSON.parse(latestRoute) : starterObject()
     this.undoManager = new UndoManager()
@@ -139,6 +150,18 @@ export default class Route {
       this.line = L.polyline(this.latLngs, { color: "rgba(250,0,0,0.5)" });
       this.line.addTo(this.map);
       this.saveToLS()
+      this.updateChart()
+      this.setReactiveStats({
+        totalDistance: `${round(this.routeDistance(), 2)} km`
+      })
+    }
+  }
+
+  updateChart() {
+    if (this.chart) {
+      this.chart.data.datasets[0].data = this.elevations
+      this.chart.data.labels = this.elevationLabels
+      this.chart.update()
     }
   }
 
@@ -148,28 +171,29 @@ export default class Route {
   }
 
   async handleClick(e: L.LeafletMouseEvent) {
-    const {lng, lat} = e.latlng.wrap()
+    const latlng = e.latlng.wrap()
+    const {lng, lat} = latlng
+    const {elevation} = await Topography.getTopography(latlng, topoOptions);
     const newPoint = [lng, lat];
-    console.log(newPoint)
     if (this.lastCoord) {
       const result = await this.osrm.routeBetweenPoints([this.lastCoord, newPoint])
       if (result) {
-        if (this.routeCoordinates.length > 1) result.shift() // We already have the first point
-        //const els = await elevation.fetch(result)
-        //for (let i = 0; i < els.length; i++) {
-        //  result[i][2] = els[i].elevation
-        //}
-      this.addCoordinates(result)
+        if (this.routeCoordinates.length > 1) result.shift(); // We already have the first point
+        this.injectElevations(result);
+        this.addCoordinates(result);
       }
     } else {
+      newPoint[2] = elevation
       this.addCoordinates([newPoint]);
     }
     this.drawRoute();
   }
 
-  handleStraightLine(e: L.LeafletMouseEvent) {
-    const {lng, lat} = e.latlng.wrap()
-    this.addCoordinates([[lng, lat]]);
+  async handleStraightLine(e: L.LeafletMouseEvent) {
+    const latlng = e.latlng.wrap()
+    const {lng, lat} = latlng
+    const {elevation} = await Topography.getTopography(latlng, topoOptions);
+    this.addCoordinates([[lng, lat, elevation]]);
     this.drawRoute()
   }
 
@@ -216,8 +240,12 @@ export default class Route {
 
   clear() {
     const copy = {...this.geoJSON}
+    const elevations = this.chart && [...this.chart.data.datasets[0].data]
     const undo = () => {
       this.geoJSON = copy
+      if (this.chart && elevations) {
+        this.chart.data.datasets[0].data = elevations
+      }
     }
     const redo = () => {
       localStorage.removeItem("latest-route")
@@ -225,6 +253,9 @@ export default class Route {
       if (this.map && this.line) {
         this.map.removeLayer(this.line)
         this.map.removeLayer(this.controlPointLayer)
+      }
+      if (this.chart) {
+        this.chart.data.datasets[0].data = []
       }
     }
     this.undoManager.add({undo, redo})
@@ -251,6 +282,34 @@ export default class Route {
     if (!this.map || !this.startLatLng) return
     this.map?.setView(this.startLatLng, 16)
   }
+
+  async injectElevations(arr: Position[]) {
+    for (let i = 0; i < arr.length; i++) {
+      const latlng = { lng: arr[i][0], lat: arr[i][1] } as L.LatLng;
+      const { elevation } = await Topography.getTopography(
+        latlng,
+        topoOptions
+      );
+      arr[i][2] = elevation
+      if (i === arr.length - 1) {
+        this.updateChart()
+        this.saveToLS()
+      }
+    }
+  }
+
+  get elevations() {
+    return this.routeCoordinates.map((c) => c[2])
+  }
+  get elevationLabels(): string[] {
+    return this.routeCoordinates.map((_, i) => {
+      let sum = 0
+      for (let j = 1; j < i; j++) {
+        sum += distance(this.routeCoordinates[j - 1], this.routeCoordinates[j])
+      }
+      return `${round(sum, 2)} km`
+    })
+  }
 }
 
 function starterObject () {
@@ -274,3 +333,4 @@ function addFeature (geoJSON: FeatureCollection, type: GeometryTypes, properties
   };
   geoJSON.features.push(obj)
 }
+

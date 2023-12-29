@@ -35,13 +35,18 @@
     "@turf/helpers": "^6.5.0",
     "@turf/nearest-point": "^6.5.0",
     "@turf/nearest-point-on-line": "^6.5.0",
+    "@types/lodash.round": "^4.0.9",
+    "chart.js": "^4.4.1",
     "eslint": "^8.55.0",
     "leaflet": "^1.9.4",
+    "leaflet-topography": "^0.2.1",
     "lodash.debounce": "^4.0.8",
     "lodash.max": "^4.0.1",
     "lodash.min": "^4.0.1",
+    "lodash.round": "^4.0.4",
     "lodash.throttle": "^4.1.1",
     "material-icons": "^1.13.12",
+    "regenerator-runtime": "^0.14.1",
     "sharp": "^0.33.1",
     "undo-manager": "^1.1.1"
   }
