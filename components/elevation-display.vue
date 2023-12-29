@@ -22,6 +22,7 @@
         datasets: [{
           data: props.route.elevations,
           borderWidth: 1,
+          tension: 0.3,
           fill: true,
           borderColor: "#d8b4fe",
           pointBorderColor: "rgba(0,0,0,0)",

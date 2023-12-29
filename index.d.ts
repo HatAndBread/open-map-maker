@@ -10,6 +10,9 @@ interface ResultPoint extends Point {
 
 interface ReactiveStats {
   totalDistance: string
+  running: boolean
+  currentElevation?: string
+  deviation?: string
 }
 
 declare interface Window {

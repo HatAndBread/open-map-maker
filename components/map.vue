@@ -18,13 +18,12 @@
   import LayersModal from "@/components/layers-modal.vue"
   import ElevationDisplay from "@/components/elevation-display.vue";
 
-  const reactiveStats = ref<ReactiveStats>({totalDistance: "0 km"})
-  const setReactiveStats = (s: ReactiveStats) => reactiveStats.value = s
+  const reactiveStats = ref<ReactiveStats>({totalDistance: "0 km", running: false} as ReactiveStats);
   const theMap = ref<Map | undefined>()
   const error = ref<string | undefined>()
   const tiles = new Tiles()
-  const osrm = new OSRM()
-  const route = new Route(osrm, setReactiveStats)
+const osrm = new OSRM()
+  const route = new Route(osrm, reactiveStats)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
   const theLine = ref<Polyline | undefined>()
@@ -37,6 +36,22 @@
     undo: () => route.undo(),
     redo: () => route.redo(),
     myLocation: () => geo.watchLocation(),
+    edit: () => {
+      const reply = confirm("Are you sure you want to start editing this route?")
+      if (!reply) return
+      reactiveStats.value.running = false
+      route.toggleControlPoints()
+    },
+    run: () => { 
+      if (route.canBeDrawn) {
+        reactiveStats.value.running = true
+        route.toggleControlPoints()
+        geo.watchLocation()
+      } else {
+        error.value = "You must add a route first."
+        window.error_modal.showModal()
+      }
+    },
     save: () => window.save_modal.showModal(),
     open: () => window.upload_modal.showModal(),
     layers: () => window.layers_modal.showModal(),
@@ -84,11 +99,20 @@
 
 <template>
   <div class="flex">
-    <MapControls :setTool="setTool" :tools="tools"/>
+    <MapControls :setTool="setTool" :tools="tools" :reactive-stats="reactiveStats"/>
     <div class="relative z-0 flex flex-col w-full">
       <div ref="theMapContainer" class="h-[calc(100vh_-_80px)] w-full" :style="tools[<'route'>currentTool].cursor"></div>
       <LazyElevationDisplay :route="route"/>
-      <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white p-2 rounded-md">{{reactiveStats.totalDistance}}</div>
+      <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white p-2 rounded-md flex flex-col">
+        <span class="underline">Total Distance</span>
+        <span>{{reactiveStats.totalDistance}}</span>
+        <span v-if="reactiveStats.running" class="flex flex-col">
+          <span class="underline">Current Elevation</span>
+          <span>{{reactiveStats.currentElevation || "-"}}</span>
+          <span class="underline">Deviation From Route</span>
+          <span>{{reactiveStats.deviation || "-"}}</span>
+        </span>
+      </div>
     </div>
     <DeleteModal :route="route"/>
     <SaveModal :route="route"/>

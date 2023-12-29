@@ -1,5 +1,8 @@
+import type Ref from "vue"
 import Route from "./route"
 import L from "leaflet"
+import round from "lodash.round"
+import distance from "@turf/distance"
 
 const html = (strings: TemplateStringsArray, ...values: any) => String.raw({ raw: strings }, ...values);
 
@@ -52,6 +55,15 @@ export default class GeoLocation {
           this.#started = true;
           this.map.setView(latLng, 16);
           this.map.addLayer(this.icon);
+        }
+        if (this.route.reactiveStats.value.running) {
+          this.route.map?.setView(latLng);
+          this.route.reactiveStats.value.currentElevation = (coords.altitude ? `${round(coords.altitude, 1)} meters` : undefined)
+          const lngLat = [latLng[1], latLng[0]]
+          const nearestPointOnLine = distance(lngLat, this.route.nearestPoint(lngLat))
+          const x = nearestPointOnLine > 1 ? 1 : 1000
+          const unit = x === 1 ? "km" : "meters"
+          this.route.reactiveStats.value.deviation = `${round(nearestPointOnLine * x, unit === "km" ? 2 : 0)} ${unit}`
         }
         localStorage.setItem("lastKnownLatLng", JSON.stringify(latLng));
         this.icon.setLatLng(latLng);

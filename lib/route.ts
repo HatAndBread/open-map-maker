@@ -30,11 +30,11 @@ export default class Route {
   undoManager: UndoManager
   preview?: L.Polyline
   chart?: Chart
-  setReactiveStats: (r: ReactiveStats) => void
+  reactiveStats: Ref<ReactiveStats>
 
-  constructor(osrm: OSRM, setReactiveStats: (r: ReactiveStats) => void) {
+  constructor(osrm: OSRM, reactiveStats: Ref<ReactiveStats>) {
     this.osrm = osrm
-    this.setReactiveStats = setReactiveStats
+    this.reactiveStats = reactiveStats
     const latestRoute = window.localStorage ? localStorage.getItem("latest-route") : null
     this.geoJSON = latestRoute ? JSON.parse(latestRoute) : starterObject()
     this.undoManager = new UndoManager()
@@ -152,9 +152,7 @@ export default class Route {
       this.saveToLS()
     }
     this.updateChart()
-    this.setReactiveStats({
-      totalDistance: `${round(this.routeDistance(), 2)} km`
-    })
+    this.reactiveStats.value.totalDistance = `${round(this.routeDistance(), 2)} km`
   }
 
   updateChart() {
@@ -171,6 +169,8 @@ export default class Route {
   }
 
   async handleClick(e: L.LeafletMouseEvent) {
+    if (this.reactiveStats.value.running) return
+
     const latlng = e.latlng.wrap()
     const {lng, lat} = latlng
     const {elevation} = await Topography.getTopography(latlng, topoOptions);
@@ -201,7 +201,7 @@ export default class Route {
     const {lng, lat} = e.latlng.wrap()
     const newPoint = [lng, lat];
     const nearestPointInRoute = nearestPointOnLine(lineString(this.routeCoordinates), newPoint)
-    const index = nearestPoint(newPoint, featureCollection(this.controlPointCoordinates.map((c) => turfPoint(c)))).properties.featureIndex
+    const index = this.nearestPoint(newPoint).properties.featureIndex
     const thisControlPoint = this.controlPointCoordinates[index]
     let indexToInsert = index
     if (!this.controlPointCoordinates[index - 1]) {
@@ -220,6 +220,10 @@ export default class Route {
     }
     this.addControlPointAt(indexToInsert, nearestPointInRoute.geometry.coordinates)
     this.drawRoute()
+  }
+
+  nearestPoint(point: number[]) {
+    return nearestPoint(point, featureCollection(this.controlPointCoordinates.map((c) => turfPoint(c))))
   }
   
   coordinatesToLatLngs(coordinates: number[][]) {
@@ -261,6 +265,14 @@ export default class Route {
     this.undoManager.add({undo, redo})
     redo()
     this.drawRoute()
+  }
+
+  toggleControlPoints() {
+    if (this.map?.hasLayer(this.controlPointLayer)) {
+      this.controlPointLayer.removeFrom(this.map)
+    } else if (this.map) {
+      this.controlPointLayer.addTo(this.map)
+    }
   }
 
   toGPX() {
