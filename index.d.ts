@@ -13,6 +13,7 @@ interface ReactiveStats {
   running: boolean
   currentElevation?: string
   deviation?: string
+  speed?: string
 }
 
 declare interface Window {

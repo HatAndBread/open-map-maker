@@ -109,6 +109,8 @@ const osrm = new OSRM()
         <span v-if="reactiveStats.running" class="flex flex-col">
           <span class="underline">Current Elevation</span>
           <span>{{reactiveStats.currentElevation || "-"}}</span>
+          <span class="underline">Speed</span>
+          <span>{{reactiveStats.speed || "-"}}</span>
           <span class="underline">Deviation From Route</span>
           <span>{{reactiveStats.deviation || "-"}}</span>
         </span>

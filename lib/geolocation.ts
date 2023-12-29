@@ -64,6 +64,7 @@ export default class GeoLocation {
           const x = nearestPointOnLine > 1 ? 1 : 1000
           const unit = x === 1 ? "km" : "meters"
           this.route.reactiveStats.value.deviation = `${round(nearestPointOnLine * x, unit === "km" ? 2 : 0)} ${unit}`
+          this.route.reactiveStats.value.speed = `${round(coords.speed || 0 / 1000, 1)} kph`
         }
         localStorage.setItem("lastKnownLatLng", JSON.stringify(latLng));
         this.icon.setLatLng(latLng);
