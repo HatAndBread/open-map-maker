@@ -49,19 +49,21 @@ export default class GeoLocation {
 
   watchLocation() {
     if (this.#started) return
-    console.log("fucker0")
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10_000,
+      maximumAge: 0
+    };
 
     navigator.geolocation.watchPosition(
       ({ coords }: GeolocationPosition) => {
         const latLng: L.LatLngExpression = [coords.latitude, coords.longitude];
-        console.log("fucker1")
         if (!this.#started) {
           this.#started = true;
           this.map.setView(latLng, 16);
           this.map.addLayer(this.icon);
         }
         if (this.route.reactiveStats.value.running) {
-          console.log("fucker2")
           this.route.map?.setView(latLng);
           this.route.reactiveStats.value.currentElevation = (coords.altitude ? `${round(coords.altitude, 1)} meters` : undefined)
           const lngLat = [latLng[1], latLng[0]]
@@ -80,9 +82,9 @@ export default class GeoLocation {
         this.icon.setLatLng(latLng);
         this.setIconRotation(coords.heading)
       },
-      (error) => {}
-    ),
-      { enableHighAccuracy : true };
+      (error) => {console.error(error)},
+      options
+    )
   }
 
   get #iconHTML() {
