@@ -22,7 +22,7 @@
   const theMap = ref<Map | undefined>()
   const error = ref<string | undefined>()
   const tiles = new Tiles()
-const osrm = new OSRM()
+  const osrm = new OSRM()
   const route = new Route(osrm, reactiveStats)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
@@ -97,12 +97,15 @@ const osrm = new OSRM()
       }
     })
     geo = new GeoLocation(route)
+    setTimeout(() => {
+      theMapContainer.value?.scrollIntoView({ behavior: "smooth"})
+    })
   })
 </script>
 
 <template>
   <div class="flex">
-    <MapControls :setTool="setTool" :tools="tools" :reactive-stats="reactiveStats"/>
+    <MapControls :setTool="setTool" :tools="tools" :reactive-stats="reactiveStats" :current-tool="currentTool"/>
     <div class="relative z-0 flex flex-col w-full">
       <div ref="theMapContainer" class="h-[calc(100vh_-_80px)] w-full" :style="tools[<'route'>currentTool].cursor"></div>
       <LazyElevationDisplay :route="route"/>
