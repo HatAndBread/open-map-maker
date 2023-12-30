@@ -112,6 +112,13 @@
       <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white p-2 rounded-md flex flex-col">
         <span class="underline">Total Distance</span>
         <span>{{reactiveStats.totalDistance}}</span>
+        <span v-if="!reactiveStats.running" class="flex flex-col">
+          <span class="underline">Current Tool</span>
+          <span class="flex">
+            <span class="material-icons-outlined">{{tools[<'route'>currentTool].icon}}</span>
+            <span class="capitalize">{{currentTool}}</span>
+          </span>
+        </span>
         <span v-if="reactiveStats.running" class="flex flex-col">
           <span class="underline">Current Elevation</span>
           <span>{{reactiveStats.currentElevation || "-"}}</span>
