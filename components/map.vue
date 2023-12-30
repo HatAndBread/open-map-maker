@@ -99,7 +99,7 @@
     geo = new GeoLocation(route)
     setTimeout(() => {
       theMapContainer.value?.scrollIntoView({ behavior: "smooth"})
-    })
+    }, 100)
   })
 </script>
 
