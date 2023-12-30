@@ -42,8 +42,8 @@ export default class GeoLocation {
 
   setIconRotation(rotation: number | null) {
     if (!rotation && (typeof rotation !== "number" || isNaN(rotation))) return
-    this.iconElement.style.rotate = `${rotation - 90}deg`
-    this.iconElement.style.transform = "translate(16px, -16px)"
+    this.iconElement.style.transform = `rotate(${rotation - 90}deg)`
+    this.iconElement.style.transformOrigin = "center"
     this.iconElement.style.fontSize = "32px"
     this.iconElement.style.color = "purple"
   }
