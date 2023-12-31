@@ -43,7 +43,7 @@ const config = {
       theme_color: "#ffffff",
       lang: "en",
       short_name: "MapMaker",
-      start_url: "/",
+      start_url: "/map",
       display: "standalone",
       background_color: "#ffffff",
       icons: [
