@@ -1,3 +1,37 @@
+<script setup lang="ts">
+  const jsonld = `
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://open-map-maker.vercel.app/"
+      },
+      "headline": "What is a GPX file?",
+      "description": "Simply put, GPX files are ordinary text files that store geographic coordinates in a standardized format. These files can then be uploaded to GPS devices made by the likes of Garmin, Wahoo, Suunto, or Coros to keep you on track while you ride your bike, run, or go for a hike.",
+      "image": "https://open-map-maker.vercel.app/handlebars.png",  
+      "author": {
+        "@type": "Organization",
+        "name": "Open Map Maker",
+        "url": "https://open-map-maker.vercel.app"
+      },  
+      "publisher": {
+        "@type": "Organization",
+        "name": "",
+        "logo": {
+          "@type": "ImageObject",
+          "url": ""
+        }
+      },
+      "datePublished": "2024-01-01",
+      "dateModified": "2024-01-01"
+    }`
+
+  useHead({
+    script: [{type: "application/ld-json", children: jsonld}]
+  })
+</script>
+
 <template>
   <div>
     <div class="min-h-[calc(100vh-80px)] hero bg-black text-white" :style="{backgroundImage: 'linear-gradient(rgba(103, 232, 249, 0.9), rgba(216, 180, 254, 0.7)), url(/background.png)'}">

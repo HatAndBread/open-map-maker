@@ -2,34 +2,6 @@
 import type { NuxtConfig } from "nuxt/schema";
 
 
-const jsonld = `
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://open-map-maker.vercel.app/"
-  },
-  "headline": "What is a GPX file?",
-  "description": "Simply put, GPX files are ordinary text files that store geographic coordinates in a standardized format. These files can then be uploaded to GPS devices made by the likes of Garmin, Wahoo, Suunto, or Coros to keep you on track while you ride your bike, run, or go for a hike.",
-  "image": "https://open-map-maker.vercel.app/handlebars.png",  
-  "author": {
-    "@type": "Organization",
-    "name": "Open Map Maker",
-    "url": "https://open-map-maker.vercel.app"
-  },  
-  "publisher": {
-    "@type": "Organization",
-    "name": "",
-    "logo": {
-      "@type": "ImageObject",
-      "url": ""
-    }
-  },
-  "datePublished": "2024-01-01",
-  "dateModified": "2024-01-01"
-}
-`
 const config = {
   modules: ["@vite-pwa/nuxt"],
   buildModules: [
@@ -47,11 +19,6 @@ const config = {
         { rel: "manifest", href: "manifest.webmanifest" },
         { rel: "apple-touch-icon", href: "apple-touch-icon-180x180.png" },
       ],
-      script: [
-        {
-          type: "application/ld-json", children: jsonld
-        }
-      ]
     },
   },
   css: ["~/assets/css/main.css"],
