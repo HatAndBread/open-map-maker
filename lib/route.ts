@@ -168,7 +168,7 @@ export default class Route {
     if (!this.map) return
     if (this.runningLine) this.map.removeLayer(this.runningLine);
     this.runningLine?.remove()
-    this.runningLine = L.polyline(this.runningLatLngs, { color: "rgba(0,10,150,0.5)" });
+    this.runningLine = L.polyline(this.runningLatLngs, { color: "rgba(103,232,249,0.4)" });
     this.runningLine.addTo(this.map);
   }
 
