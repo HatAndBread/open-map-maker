@@ -19,7 +19,8 @@ export default class GeoLocation {
     this.route = route
     this.map = route.map as L.Map;
     this.id = `${Math.floor(Math.random() * 100000)}`
-    this._icon = L.divIcon({ className: "", html: this.#iconHTML });
+    //@ts-ignore
+    this._icon = L.divIcon({ className: "", html: this.#iconHTML, iconSize: 32 });
     this.icon = L.marker([0, 0], {
       icon: this._icon,
       interactive: false,
@@ -42,7 +43,7 @@ export default class GeoLocation {
 
   setIconRotation(rotation: number | null) {
     if (!rotation && (typeof rotation !== "number" || isNaN(rotation))) return
-    this.iconElement.style.transform = `rotate(${rotation - 90}deg)`
+    this.iconElement.style.transform = `rotate(${rotation}deg)`
     this.iconElement.style.transformOrigin = "center"
     this.iconElement.style.fontSize = "32px"
     this.iconElement.style.color = "purple"
@@ -90,10 +91,8 @@ export default class GeoLocation {
 
   get #iconHTML() {
     return html`
-      <span class="relative flex w-[22px] h-[22px]" id="${this.id}">
-        <span
-          >➣
-        </span>
+      <span class="material-icons-outlined" id="${this.id}">
+      navigation
       </span>
     `;
   }
