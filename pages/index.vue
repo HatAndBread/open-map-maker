@@ -45,16 +45,16 @@
 
         <div class="drop-shadow-xl carousel rounded-box w-96">
           <div class="w-1/2 carousel-item">
-            <img src="/suunto.jpg" class="object-cover w-full" title="Suunto Watch"/>
+            <img src="/suunto.jpg" class="object-cover w-full" title="Suunto Watch" loading="lazy" alt="A GPS Device"/>
           </div> 
           <div class="w-1/2 carousel-item">
-            <img src="/handlebars.webp" class="object-cover w-full" title="Garmin Bike GPS" />
+            <img src="/handlebars.png" class="object-cover w-full" title="Garmin Bike GPS" loading="lazy" alt="A GPS Device" />
           </div> 
           <div class="w-1/2 carousel-item" title="Garmin Watch">
-            <img src="/garmin.jpg" class="object-cover w-full" />
+            <img src="/garmin.jpg" class="object-cover w-full" loading="lazy" alt="A GPS Device" />
           </div> 
           <div class="w-1/2 carousel-item" title="Wahoo Element Bike Computer">
-            <img src="/element.webp" class="object-cover w-full" />
+            <img src="/element.png" class="object-cover w-full" loading="lazy" alt="A GPS Device" />
           </div> 
         </div>
         <p class="mb-4 italic text-small text-[#777]"> A selection of GPS devices</p>
