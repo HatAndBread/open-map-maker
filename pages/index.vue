@@ -28,7 +28,7 @@
     }`
 
   useHead({
-    script: [{type: "application/ld-json", children: jsonld}]
+    script: [{type: "application/ld+json", children: jsonld}]
   })
 </script>
 
