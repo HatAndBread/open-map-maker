@@ -71,7 +71,7 @@ const tools = {
     running: false
   },
   save: {
-    icon: "save",
+    icon: "download",
     tip: "Save File",
     cursor: { cursor: "grab" },
     running: false
