@@ -49,7 +49,7 @@ const config = {
       ],
       script: [
         {
-          type: "application/ld-json", children: JSON.stringify(jsonld)
+          type: "application/ld-json", children: jsonld
         }
       ]
     },
