@@ -26,4 +26,6 @@ declare interface Window {
 
 type Server = "osm" | "cyclosm" | "satellite"
 
+type DirectionsProfile = "mapbox/driving-traffic" | "mapbox/driving" | "mapbox/walking" | "mapbox/cycling"
+
 declare module 'togpx';

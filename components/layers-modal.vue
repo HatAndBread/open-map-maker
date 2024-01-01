@@ -12,6 +12,7 @@
 <template>
   <dialog id="layers_modal" class="modal">
     <div class="modal-box max-w-[300px]">
+      <h2 class="text-xl font-bold">Select A Map Style</h2>
       <div class="flex flex-col modal-action">
         <form @change="formChange">
           <div class="form-control" v-for="(server, i) in tiles.servers">

@@ -21,8 +21,9 @@
   const reactiveStats = ref<ReactiveStats>({totalDistance: "0 km", running: false} as ReactiveStats);
   const theMap = ref<Map | undefined>()
   const error = ref<string | undefined>()
+  const directionsProfile = ref<DirectionsProfile>(localStorage.getItem("directions-profile") as DirectionsProfile || "mapbox/walking")
   const tiles = new Tiles()
-  const osrm = new OSRM()
+  const osrm = new OSRM(directionsProfile.value)
   const route = new Route(osrm, reactiveStats)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
@@ -76,6 +77,11 @@
     }
   })
 
+  watch(directionsProfile, () => {
+    osrm.currentProfile = directionsProfile.value
+    console.log("Hi!", osrm.currentProfile)
+  })
+
   watch(error, () => {
     window.error_modal.showModal()
   })
@@ -101,6 +107,13 @@
       theMapContainer.value?.scrollIntoView({ behavior: "smooth"})
     }, 100)
   })
+  const handleDirectionsChange = (e: Event) => {
+    const target = e.target as HTMLSelectElement
+    target.blur()
+    const profile = `mapbox/${target.value}` as DirectionsProfile
+    osrm.currentProfile = profile
+    localStorage.setItem("directions-profile", profile)
+  }
 </script>
 
 <template>
@@ -110,6 +123,11 @@
       <div ref="theMapContainer" class="h-[calc(100vh_-_80px)] w-full" :style="tools[<'route'>currentTool].cursor"></div>
       <LazyElevationDisplay :route="route"/>
       <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white p-2 rounded-md flex flex-col">
+        <select class="w-full max-w-xs select select-ghost" @change="handleDirectionsChange">
+          <option value="walking" :selected="directionsProfile === 'mapbox/walking'">Walking</option>
+          <option value="cycling" :selected="directionsProfile === 'mapbox/cycling'">Cycling</option>
+          <option value="driving" :selected="directionsProfile === 'mapbox/driving'">Driving</option>
+        </select>
         <span class="underline">Total Distance</span>
         <span>{{reactiveStats.totalDistance}}</span>
         <span v-if="!reactiveStats.running" class="flex flex-col">

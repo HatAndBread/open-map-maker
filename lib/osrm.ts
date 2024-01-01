@@ -3,10 +3,11 @@ import { useRuntimeConfig } from "nuxt/app"
 const baseUrl = "https://api.mapbox.com/directions/v5"
 const config = useRuntimeConfig()
 
+
 export default class OSRM {
-  currentProfile: "mapbox/driving-traffic" | "mapbox/driving" | "mapbox/walking" | "mapbox/cycling"
-  constructor() {
-    this.currentProfile = "mapbox/walking"
+  currentProfile: DirectionsProfile
+  constructor(directionsProfile: DirectionsProfile) {
+    this.currentProfile = directionsProfile
   }
 
   get options() {
@@ -16,7 +17,7 @@ export default class OSRM {
   pointsString(points: number[][]) {
     return points.map((p) => `${p[0]},${p[1]}`).join(";")
   }
-  
+
   async fetch(url: string) {
       const result = await window.fetch(url)
       const data = await result.json()
