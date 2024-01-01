@@ -67,7 +67,7 @@ export default class ControlPointMarker {
   }
 
   coordinatesToCut(previous: Position, next: Position): [number, number] {
-    if (next && previous) return this.middleCut(next, previous)
+    if (next && previous) return this.middleCut(previous, next)
     if (previous) return this.endCut(previous)
     return this.beginningCut(next)
   }
@@ -81,7 +81,7 @@ export default class ControlPointMarker {
     return [this.routeCoordinates.findIndex((x) => x[0] === previous[0] && x[1] === previous[1]), Infinity]
   }
 
-  middleCut(next: Position, previous: Position): [number, number] {
+  middleCut(previous: Position, next: Position): [number, number] {
     const segmentToCut = [previous, next].map((x) => {
       return this.routeCoordinates
         .map((y, i) => y[0] === x[0] && y[1] === x[1] ? i : null)
@@ -98,6 +98,8 @@ export default class ControlPointMarker {
     const newCoords = [latlng.lng, latlng.lat]
     const points = [previous, newCoords, next].filter(Boolean)
     const coordinates = await this.route.osrm.routeBetweenPoints(points) as Position[]
+    if (previous) coordinates[0] = [previous[0], previous[1]] // ensure there is a corresponding route coord for the control point
+    if (next) coordinates.push([next[0], next[1]]) // ensure there is a corresponding route coord for the control point
     this.route.injectElevations(coordinates)
     const currentCoords = nearestPoint(newCoords, featureCollection(coordinates.map((c) => turfPoint(c)))).geometry.coordinates
     return {coordinates, previous, next, currentCoords}

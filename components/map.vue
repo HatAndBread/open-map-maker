@@ -79,7 +79,6 @@
 
   watch(directionsProfile, () => {
     osrm.currentProfile = directionsProfile.value
-    console.log("Hi!", osrm.currentProfile)
   })
 
   watch(error, () => {
