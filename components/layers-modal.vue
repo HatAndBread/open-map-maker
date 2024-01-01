@@ -5,7 +5,6 @@
   const formChange = (e: Event) => {
     const target = e.srcElement as HTMLInputElement
     const server = target.value as Server
-    console.log(server)
     props.tiles.updateMapTiles(server)
   }
 </script>

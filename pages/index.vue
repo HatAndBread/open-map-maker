@@ -34,7 +34,7 @@
 
 <template>
   <div>
-    <div class="min-h-[calc(100vh-80px)] hero bg-black text-white" :style="{backgroundImage: 'linear-gradient(rgba(103, 232, 249, 0.9), rgba(216, 180, 254, 0.7)), url(/background.png)'}">
+    <div class="min-h-[calc(100vh-80px)] hero bg-black text-white" :style="{backgroundImage: 'linear-gradient(rgba(50, 50, 190, 0.8), rgba(50, 90, 50, 0.7)), url(/background.png)'}">
       <div class="flex-col hero-content lg:flex-row-reverse">
         <div class="mockup-phone border-primary min-w-[300px] hidden lg:block">
           <div class="camera"></div> 

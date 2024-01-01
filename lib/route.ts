@@ -54,7 +54,6 @@ export default class Route {
 
   get startLatLng(): L.LatLngExpression | null {
     if (!this.routeCoordinates[0]) return null
-      console.log(this.routeCoordinates[0])
     return {lat: this.routeCoordinates[0][1], lng: this.routeCoordinates[0][0]}
   }
 
