@@ -122,8 +122,8 @@
     <div class="relative z-0 flex flex-col w-full">
       <div ref="theMapContainer" class="h-[calc(100vh_-_80px)] w-full" :style="tools[<'route'>currentTool].cursor"></div>
       <LazyElevationDisplay :route="route"/>
-      <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white p-2 rounded-md flex flex-col">
-        <select class="w-full max-w-xs select select-ghost" @change="handleDirectionsChange">
+      <div class="absolute mt-2 mr-2 right-0 z-[999999999] bg-[rgba(50,50,50,0.5)] text-white px-2 pb-2 rounded-md flex flex-col">
+        <select class="w-full max-w-xs p-0 select select-ghost" @change="handleDirectionsChange">
           <option value="walking" :selected="directionsProfile === 'mapbox/walking'">Walking</option>
           <option value="cycling" :selected="directionsProfile === 'mapbox/cycling'">Cycling</option>
           <option value="driving" :selected="directionsProfile === 'mapbox/driving'">Driving</option>
