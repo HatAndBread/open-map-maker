@@ -33,10 +33,12 @@ export default class Route {
   preview?: L.Polyline
   chart?: Chart
   reactiveStats: Ref<ReactiveStats>
+  currentTool: Ref<string>
 
-  constructor(osrm: OSRM, reactiveStats: Ref<ReactiveStats>) {
+  constructor(osrm: OSRM, reactiveStats: Ref<ReactiveStats>, currentTool: Ref<string>) {
     this.osrm = osrm
     this.reactiveStats = reactiveStats
+    this.currentTool = currentTool
     const latestRoute = window.localStorage ? localStorage.getItem("latest-route") : null
     this.geoJSON = latestRoute ? JSON.parse(latestRoute) : starterObject()
     this.runningGeoJSON = starterObject()
@@ -120,6 +122,18 @@ export default class Route {
     redo()
   }
 
+  removeControlPointAt(index: number) {
+    const position = [...this.controlPointCoordinates[index]]
+    const undo = () => {
+      this.controlPointCoordinates.splice(index, 0, position)
+    }
+    const redo = () => {
+      this.controlPointCoordinates.splice(index, 1)
+    }
+    this.undoManager.add({undo, redo})
+    redo()
+  }
+
   startMarker() {
     const start = this.controlPointCoordinates[0]
     const marker = new L.Marker([start[1], start[0]], {
@@ -138,16 +152,17 @@ export default class Route {
   addControlPointMarkers() {
     if (!this.map) return
     if (this.controlPointLayer) this.map.removeLayer(this.controlPointLayer)
-    this.controlPointLayer = new L.LayerGroup(this.controlPointMakers())
+    this.controlPointLayer = new L.LayerGroup(this.createControlPointMarkers())
     this.controlPointLayer.addTo(this.map)
   }
   
-  controlPointMakers() {
-    const markers = [this.startMarker()]
+  createControlPointMarkers() {
+    const leafletMarkers = [this.startMarker()]
     for (let i = 0; i < this.controlPointCoordinates.length; i++) {
-      markers.push(new ControlPointMarker(this, i).leafletMarker);
+      const marker = new ControlPointMarker(this, i)
+      leafletMarkers.push(marker.leafletMarker);
     }
-    return markers
+    return leafletMarkers
   }
 
   drawRoute() {

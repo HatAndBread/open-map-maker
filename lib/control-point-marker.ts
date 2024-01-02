@@ -32,6 +32,19 @@ export default class ControlPointMarker {
         this.preview.setLatLngs(coordinatesToLatLngs(coordinates));
       }
     }, 500)
+
+    const handleClick = (e: L.LeafletMouseEvent) => {
+      e.originalEvent.stopPropagation()
+      // Do nothing on first and last control point
+      if (!this.index || this.index === this.route.controlPointCoordinates.length - 1) return
+      if (this.route.currentTool.value === "controlPoint") {
+        this.route.removeControlPointAt(this.index)
+        this.route.drawRoute()
+        console.log("Do something")
+      }
+    }
+
+    this.leafletMarker.on("click", handleClick)
     
     this.leafletMarker.on("drag", handleDrag)
     

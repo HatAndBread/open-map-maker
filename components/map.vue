@@ -21,14 +21,14 @@
   const reactiveStats = ref<ReactiveStats>({totalDistance: "0 km", running: false} as ReactiveStats);
   const theMap = ref<Map | undefined>()
   const error = ref<string | undefined>()
+  const currentTool = ref("route")
   const directionsProfile = ref<DirectionsProfile>(localStorage.getItem("directions-profile") as DirectionsProfile || "mapbox/walking")
   const tiles = new Tiles()
   const osrm = new OSRM(directionsProfile.value)
-  const route = new Route(osrm, reactiveStats)
+  const route = new Route(osrm, reactiveStats, currentTool)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
   const theLine = ref<Polyline | undefined>()
-  const currentTool = ref("route")
 
   const setTool = (t: string) => currentTool.value = t
   const setError = (t: string) => error.value = t
