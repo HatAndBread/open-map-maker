@@ -120,6 +120,7 @@
         Open Map Maker is made possible by a number of different Open Source Projects. If you like Open Map Maker please consider supporting these projects. In no particular order they are:
           <ul class="list-disc list-inside">
             <li class="px-4 py-2"><a href="https://leafletjs.com/" class="link">Leaflet JS</a></li>
+            <li class="px-4 py-2"><a href="https://www.cyclosm.org" class="link">CyclOSM</a></li>
             <li class="px-4 py-2"><a href="https://www.openstreetmap.org" class="link">Open Street Map</a></li>
             <li class="px-4 py-2"><a href="https://turfjs.org" class="link">Turf JS</a></li>
             <li class="px-4 py-2"><a href="https://github.com/slutske22/leaflet-topography" class="link">Leaflet Topography</a></li>
