@@ -23,12 +23,12 @@
   const error = ref<string | undefined>()
   const currentTool = ref("route")
   const directionsProfile = ref<DirectionsProfile>(localStorage.getItem("directions-profile") as DirectionsProfile || "mapbox/walking")
-  const tiles = new Tiles()
+  const currentServer = ref(Tiles.initialServer())
+  const tiles = new Tiles(currentServer)
   const osrm = new OSRM(directionsProfile.value)
   const route = new Route(osrm, reactiveStats, currentTool)
   let geo: GeoLocation
   const theMapContainer: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
-  const theLine = ref<Polyline | undefined>()
 
   const setTool = (t: string) => currentTool.value = t
   const setError = (t: string) => error.value = t
@@ -149,7 +149,7 @@
     <DeleteModal :route="route"/>
     <SaveModal :route="route"/>
     <UploadModal :route="route" :setError="setError"/>
-    <LayersModal :tiles="tiles"/>
+    <LayersModal :tiles="tiles" :currentServer="currentServer"/>
     <ErrorModal :error="error"/>
   </div>
 </template>
