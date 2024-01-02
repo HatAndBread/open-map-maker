@@ -5,8 +5,6 @@
   import Route from "@/lib/route";
   import GeoLocation from "@/lib/geolocation"
   import googleMaps from "@/lib/google-maps"
-  import downloadFile from "@/lib/download-file"
-  import elevation from "@/lib/elevation";
   import Tiles from "@/lib/tiles"
   import L, {type LeafletMouseEvent, Map, Polyline} from "leaflet";
   import 'leaflet/dist/leaflet.css';
@@ -94,7 +92,7 @@
     route.addPreview()
     route.drawRoute()
 
-    tiles.updateMapTiles(tiles.currentServer).addTo(map)
+    tiles.updateMapTiles(tiles.currentServer.value).addTo(map)
     map.on("click", (e) => {
       if (Object.keys(locationClickFuncs).includes(currentTool.value)) {
         if (currentTool.value !== "streetView") map.setView(e.latlng.wrap())
