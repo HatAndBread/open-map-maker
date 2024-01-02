@@ -68,7 +68,7 @@
         </h2>
         <p class="p-6 text-lg max-w-[900px]">
         Open Map Maker allows you to create and edit <a href="#gpx" class="link">GPX files</a> that can then be uploaded to your GPS tracking device.
-        If you don't have a GPS device you can use your phone and Open Map Maker in navigation mode. Below is a brief explanation of how to use the toolbar in the map editor.
+        If you don't have a GPS device you can use your phone with Open Map Maker in navigation mode. Below is a brief explanation of how to use the toolbar in the map editor.
         <ul class="w-full mt-4 list-inside">
           <div v-for="(obj) in tools">
             <li v-if="!obj.running" class="flex items-center py-2">
