@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import {tools} from "@/components/tools"
   const jsonld = `
     {
       "@context": "https://schema.org",
@@ -50,7 +51,7 @@
             <img src="/logo.svg" class="w-12 drop-shadow-xl" />
           </h1>
             <p class="py-6 text-lg max-w-[600px]">
-              Open Map Maker is a free and open source tool for creating GPX files.
+              Open Map Maker is a free and open source tool for creating hiking, running, and cycling GPS routes.
               No sign up and no account is necessary. Start <a href="/map" class="link">planning an adventure</a> now.
             </p>
             <div class="flex gap-4">
@@ -62,6 +63,24 @@
     </div>
     <div id="learn-more" class="flex flex-col items-center w-full mt-[44px] gap-2 text-neutral">
       <section class="flex flex-col items-center">
+        <h2 class="px-4 text-4xl font-semibold">
+          How To Make a Map With Open Map Maker
+        </h2>
+        <p class="p-6 text-lg max-w-[900px]">
+        Open Map Maker allows you to create and edit <a href="#gpx" class="link">GPX files</a> that can then be uploaded to your GPS tracking device.
+        If you don't have a GPS device you can use your phone and Open Map Maker in navigation mode. Below is a brief explanation of how to use the toolbar in the map editor.
+        <ul class="w-full mt-4 list-inside">
+          <div v-for="(obj) in tools">
+            <li v-if="!obj.running" class="flex items-center py-2">
+              <span class="p-2 rounded shadow-xl material-icons-outlined bg-base-200">{{obj.icon}}</span>
+              <span class="ml-2 text-sm">{{obj.explanation}}</span>
+            </li>
+          </div>
+        </ul>
+        </p>
+      </section>
+      <div class="divider"></div> 
+      <section class="flex flex-col items-center" id="gpx">
         <h2 class="text-4xl font-semibold">
           What is a GPX file?
         </h2>
@@ -119,11 +138,11 @@
         <p class="p-6 text-lg max-w-[900px]">
         Open Map Maker is made possible by a number of different Open Source Projects. If you like Open Map Maker please consider supporting these projects. In no particular order they are:
           <ul class="list-disc list-inside">
-            <li class="px-4 py-2"><a href="https://leafletjs.com/" class="link">Leaflet JS</a></li>
-            <li class="px-4 py-2"><a href="https://www.cyclosm.org" class="link">CyclOSM</a></li>
-            <li class="px-4 py-2"><a href="https://www.openstreetmap.org" class="link">Open Street Map</a></li>
-            <li class="px-4 py-2"><a href="https://turfjs.org" class="link">Turf JS</a></li>
-            <li class="px-4 py-2"><a href="https://github.com/slutske22/leaflet-topography" class="link">Leaflet Topography</a></li>
+            <li class="px-4 py-2"><a href="https://leafletjs.com/" class="link" target="_blank">Leaflet JS</a></li>
+            <li class="px-4 py-2"><a href="https://www.cyclosm.org" class="link" target="_blank">CyclOSM</a></li>
+            <li class="px-4 py-2"><a href="https://www.openstreetmap.org" class="link" target="_blank">Open Street Map</a></li>
+            <li class="px-4 py-2"><a href="https://turfjs.org" class="link" target="_blank">Turf JS</a></li>
+            <li class="px-4 py-2"><a href="https://github.com/slutske22/leaflet-topography" class="link" target="_blank">Leaflet Topography</a></li>
           </ul>
         </p>
       </section>
