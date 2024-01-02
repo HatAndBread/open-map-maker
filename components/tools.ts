@@ -22,7 +22,7 @@ const tools = {
     tip: "Add To Route",
     cursor: cursor("crosshair", { x: 16, y: 16 }),
     running: false,
-    explanation: `Click anywhere on the map to add add a "Control Point" to your map.`
+    explanation: `Click anywhere on the map to add a "Control Point" to your map.`
 
   },
   controlPoint: {
