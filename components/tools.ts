@@ -43,7 +43,7 @@ const tools = {
   streetView: {
     icon: "streetview",
     tip: "View Location in Google Street View",
-    cursor: cursor("streetView"),
+    cursor: cursor("streetview"),
     running: false,
     explanation: `Click anywhere on the map to view the location in Google Street View.`
   },
