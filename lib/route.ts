@@ -306,7 +306,7 @@ export default class Route {
     }
   }
 
-  toGPX() {
+  toGPX(shouldRemoveControlPoints: boolean) {
     const options = {
       metadata: {
         name: "Open Map Maker Route",
@@ -318,7 +318,8 @@ export default class Route {
         },
       },
     };
-    const gpx = GeoJsonToGpx(this.geoJSON, options);
+    const theGeoJSON = shouldRemoveControlPoints ? this.geoJSONWithoutControlPoints : this.geoJSON
+    const gpx = GeoJsonToGpx(theGeoJSON, options);
     return new XMLSerializer().serializeToString(gpx);
   }
 
@@ -329,6 +330,12 @@ export default class Route {
 
   resetRunningGeoJSON() {
     this.runningGeoJSON = starterObject()
+  }
+
+  get geoJSONWithoutControlPoints() {
+    const gj = {...this.geoJSON}
+    gj.features.pop()
+    return gj;
   }
 
   async injectElevations(arr: Position[]) {
@@ -349,6 +356,7 @@ export default class Route {
   get elevations() {
     return this.routeCoordinates.map((c) => c[2])
   }
+
   get elevationLabels(): string[] {
     return this.routeCoordinates.map((_, i) => {
       let sum = 0
