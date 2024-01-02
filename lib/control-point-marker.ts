@@ -40,7 +40,6 @@ export default class ControlPointMarker {
       if (this.route.currentTool.value === "controlPoint") {
         this.route.removeControlPointAt(this.index)
         this.route.drawRoute()
-        console.log("Do something")
       }
     }
 
