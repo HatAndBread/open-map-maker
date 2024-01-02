@@ -22,7 +22,7 @@ const tools = {
     tip: "Add To Route",
     cursor: cursor("crosshair", { x: 16, y: 16 }),
     running: false,
-    explanation: `Click anywhere on the map to add add a "Control Point" to your map. `
+    explanation: `Click anywhere on the map to add add a "Control Point" to your map.`
 
   },
   controlPoint: {
@@ -30,7 +30,7 @@ const tools = {
     tip: "Add Or Remove Control Points",
     cursor: cursor("controlpoint"),
     running: false,
-    explanation: `Click anywhere on the map to add add a "Control Point" to your map. `
+    explanation: `Click along your route to insert a control point or remove an existing control point.`
 
   },
   straightLine: {
@@ -38,7 +38,7 @@ const tools = {
     tip: "Draw Straight Lines",
     cursor: cursor("straightline", { x: 8, y: 16 }),
     running: false,
-    explanation: `Click anywhere on the map to add add a "Control Point" to your map.`
+    explanation: `Travel in a straight line from the previous control point.`
   },
   streetView: {
     icon: "streetview",
