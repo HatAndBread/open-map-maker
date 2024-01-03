@@ -28,6 +28,11 @@ const config = {
           content:
             "Create GPS routes for cycling, running, or hiking. Free and open source forever.",
         },
+        {
+          name: "keywords",
+          content:
+            "cycling, running, hiking, trail running, gpx, gps, map, route",
+        },
         { content: "https://open-map-maker.vercel.app", property: "og:url" },
         {
           content: "https://open-map-maker.vercel.app/icon.png",
