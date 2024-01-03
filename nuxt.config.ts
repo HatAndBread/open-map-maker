@@ -4,9 +4,7 @@ import type { NuxtConfig } from "nuxt/schema";
 
 const config = {
   modules: ["@vite-pwa/nuxt"],
-  buildModules: [
-    'nuxt-vite'
-  ],
+  buildModules: ["nuxt-vite"],
   devtools: { enabled: true },
   app: {
     head: {
@@ -19,24 +17,42 @@ const config = {
         { rel: "manifest", href: "manifest.webmanifest" },
         { rel: "apple-touch-icon", href: "apple-touch-icon-180x180.png" },
       ],
+      meta: [
+        {
+          name: "description",
+          content:
+            "Create GPS routes for cycling, running, or hiking. Free and open source forever.",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Create GPS routes for cycling, running, or hiking. Free and open source forever.",
+        },
+        { content: "https://open-map-maker.vercel.app", property: "og:url" },
+        {
+          content: "https://open-map-maker.vercel.app/icon.png",
+          property: "og:image",
+        },
+        { content: "#ffffff", name: "theme-color" },
+      ],
     },
   },
   css: ["~/assets/css/main.css"],
   pwa: {
-    registerType: 'autoUpdate',
+    registerType: "autoUpdate",
     // devOptions: {
-      // enabled: true,
-      // navigateFallbackAllowlist: [/^\/$/],
-      // type: 'module',
+    // enabled: true,
+    // navigateFallbackAllowlist: [/^\/$/],
+    // type: 'module',
     // },
     client: {
       installPrompt: true,
       // you don't need to include this: only for testing purposes
-      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
+      // if enabling periodic sync for update use 1 hour or so ()
       periodicSyncForUpdates: 20,
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
     },
     manifest: {
       name: "Open Map Maker",
