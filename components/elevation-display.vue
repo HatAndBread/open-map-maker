@@ -15,12 +15,16 @@
     gradient?.addColorStop(0.1, "#f43f5e");
     gradient?.addColorStop(0.7, "#22c55e");
     gradient?.addColorStop(1, "#22d3ee");
+    const route =   (props.route.length > 5000) ? props.route.filter((_, idx) => idx % 1000 === 0)
+                  : (props.route.length > 1000) ? props.route.filter((_, idx) => idx % 100 === 0)
+                  : (props.route.length > 200)  ? props.route.filter((_, idx) => idx % 10 === 0)
+                  : props.route;
     props.route.chart = new Chart(canvasRef.value, {
       type: 'line',
       data: {
-        labels: props.route.elevationLabels,
+        labels: route.elevationLabels,
         datasets: [{
-          data: props.route.elevations,
+          data: route.elevations,
           borderWidth: 1,
           tension: 0.3,
           fill: true,
