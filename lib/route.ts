@@ -339,17 +339,36 @@ export default class Route {
   }
 
   async injectElevations(arr: Position[]) {
-    for (let i = 0; i < arr.length; i++) {
-      const latlng = { lng: arr[i][0], lat: arr[i][1] } as L.LatLng;
-      const { elevation } = await Topography.getTopography(
-        latlng,
-        topoOptions
-      );
-      arr[i][2] = elevation
-      if (i === arr.length - 1) {
-        this.updateChart()
-        this.saveToLS()
+    if (arr.length < 100) {
+      for (let i = 0; i < arr.length; i++) {
+        const latlng = { lng: arr[i][0], lat: arr[i][1] } as L.LatLng;
+        const { elevation } = await Topography.getTopography(latlng, topoOptions);
+        arr[i][2] = elevation;
       }
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        if (i % 10 === 0 || i === arr.length - 1) {
+          const latlng = { lng: arr[i][0], lat: arr[i][1] } as L.LatLng;
+          const { elevation } = await Topography.getTopography(latlng, topoOptions);
+          arr[i][2] = elevation;
+
+          // Interpolate values in between
+          if (i > 0) {
+            let prevIdx = (((i - 1) / 10) | 0) * 10;
+            let elementsBetween = i - prevIdx;
+            let prevElev = arr[prevIdx][2];
+            let ratio = (elevation - prevElev) / elementsBetween;
+
+            for (let j = 1; j < elementsBetween; j++) {
+              arr[prevIdx + j][2] = prevElev + ratio * j;
+            }
+          }
+        }
+      }
+    }
+    if (arr.length > 0) {
+      this.updateChart();
+      this.saveToLS();
     }
   }
 
